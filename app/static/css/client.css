@@ -1,11 +1,203 @@
 body {
   font-feature-settings: "ss01";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+:root {
+  --km-radius: 16px;
+  --km-radius-sm: 12px;
+  --km-border: rgba(0, 0, 0, 0.08);
+  --km-shadow: 0 0.65rem 1.6rem rgba(0, 0, 0, 0.08);
+  --km-shadow-hover: 0 0.9rem 2rem rgba(0, 0, 0, 0.12);
+  --km-focus: rgba(13, 110, 253, 0.18);
+  --km-coffee: #6f4e37;
+  --km-coffee-700: #5b3f2d;
+  --km-cream: #f4efe9;
+}
+
+[data-bs-theme="dark"] {
+  --km-border: rgba(255, 255, 255, 0.12);
+  --km-shadow: 0 0.65rem 1.6rem rgba(0, 0, 0, 0.28);
+  --km-shadow-hover: 0 0.9rem 2rem rgba(0, 0, 0, 0.36);
+  --km-focus: rgba(255, 255, 255, 0.10);
+  --km-cream: rgba(255, 255, 255, 0.06);
+}
+
+.navbar {
+  backdrop-filter: blur(10px);
+}
+
+.navbar {
+  box-shadow: 0 0.5rem 1.3rem rgba(0, 0, 0, 0.14);
+}
+
+.navbar.bg-dark {
+  background: linear-gradient(180deg, rgba(111, 78, 55, 0.95), rgba(33, 37, 41, 0.95)) !important;
+}
+
+[data-bs-theme="dark"] .navbar.bg-dark {
+  background: linear-gradient(180deg, rgba(33, 37, 41, 0.78), rgba(17, 17, 17, 0.78)) !important;
+}
+
+[data-bs-theme="dark"] .text-muted {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+.site-footer {
+  background: linear-gradient(180deg, rgba(244, 239, 233, 0.6), rgba(255, 255, 255, 0.0));
+}
+
+[data-bs-theme="dark"] .site-footer {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.0));
+}
+
+.card {
+  border-radius: var(--km-radius);
+  border-color: var(--km-border);
+}
+
+.card.shadow-sm {
+  box-shadow: var(--km-shadow) !important;
+}
+
+.btn {
+  border-radius: var(--km-radius-sm);
+  font-weight: 600;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease, border-color 120ms ease;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.btn-dark {
+  background-color: var(--km-coffee);
+  border-color: var(--km-coffee);
+  box-shadow: 0 0.5rem 1.1rem rgba(33, 37, 41, 0.18);
+}
+
+.btn-dark:hover {
+  background-color: var(--km-coffee-700);
+  border-color: var(--km-coffee-700);
+}
+
+[data-bs-theme="dark"] .btn-outline-dark {
+  color: rgba(255, 255, 255, 0.88);
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+[data-bs-theme="dark"] .btn-outline-dark:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.btn-outline-dark:hover {
+  box-shadow: 0 0.5rem 1.2rem rgba(0, 0, 0, 0.10);
+}
+
+.form-control,
+.form-select,
+.input-group-text {
+  border-radius: var(--km-radius-sm);
+  border-color: var(--km-border);
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: rgba(13, 110, 253, 0.55);
+  box-shadow: 0 0 0 0.25rem var(--km-focus);
+}
+
+.table {
+  border-color: var(--km-border);
+}
+
+.table thead th {
+  font-weight: 700;
+  color: rgba(33, 37, 41, 0.72);
+}
+
+.badge.border {
+  border-color: var(--km-border) !important;
+}
+
+.modal-content {
+  border-radius: var(--km-radius);
+  border-color: var(--km-border);
+}
+
+.modal-header {
+  border-bottom-color: var(--km-border);
+}
+
+.modal-footer {
+  border-top-color: var(--km-border);
+}
+
+.sticky-summary {
+  position: sticky;
+  top: 1rem;
+}
+
+.checkout-bar {
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1030;
+}
+
+.checkout-bar-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--km-radius);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--km-border);
+  box-shadow: 0 0.9rem 2.2rem rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(10px);
+}
+
+[data-bs-theme="dark"] .checkout-bar-inner {
+  background: rgba(33, 37, 41, 0.78);
+  color: rgba(255, 255, 255, 0.92);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+[data-bs-theme="dark"] .checkout-bar-inner .text-muted {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+
+[data-bs-theme="light"] .icon-sun { display: none; }
+[data-bs-theme="light"] .icon-moon { display: inline-flex; }
+[data-bs-theme="dark"] .icon-moon { display: none; }
+[data-bs-theme="dark"] .icon-sun { display: inline-flex; }
+
+.navbar i[data-lucide],
+.btn i[data-lucide] {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 992px) {
+  main.container {
+    padding-bottom: 6rem;
+  }
 }
 
 .hero {
   background: radial-gradient(1200px circle at 10% 10%, rgba(33, 37, 41, 0.10), transparent 40%),
               radial-gradient(900px circle at 90% 20%, rgba(13, 110, 253, 0.10), transparent 40%),
               linear-gradient(180deg, #ffffff, #f8f9fa);
+}
+
+[data-bs-theme="dark"] .hero {
+  background: radial-gradient(1200px circle at 10% 10%, rgba(111, 78, 55, 0.22), transparent 40%),
+              radial-gradient(900px circle at 90% 20%, rgba(13, 110, 253, 0.16), transparent 40%),
+              linear-gradient(180deg, rgba(33, 37, 41, 0.92), rgba(17, 17, 17, 0.92));
 }
 
 .hero-badge .badge {
@@ -18,6 +210,11 @@ body {
   background: #ffffff;
   padding: 0.5rem;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+[data-bs-theme="dark"] .product-card .card-img-top {
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom-color: rgba(255, 255, 255, 0.10);
 }
 
 .product-card .card-text {
@@ -34,11 +231,50 @@ body {
 
 .product-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0.5rem 1.2rem rgba(0, 0, 0, 0.10) !important;
+  box-shadow: var(--km-shadow-hover) !important;
 }
 
 .placeholder-img {
   height: 220px;
   background: linear-gradient(135deg, #f1f3f5, #e9ecef);
   border-radius: 0.375rem;
+}
+
+[data-bs-theme="dark"] .placeholder-img {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+}
+
+.sticky-cart {
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 1030;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 0.9rem 2.2rem rgba(0, 0, 0, 0.22);
+}
+
+@media (min-width: 992px) {
+  .sticky-cart {
+    display: none;
+  }
+}
+
+.carousel .carousel-item img {
+  height: 360px;
+  object-fit: contain;
+  background: #ffffff;
+}
+
+[data-bs-theme="dark"] .carousel .carousel-item img {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+@media (max-width: 576px) {
+  .carousel .carousel-item img {
+    height: 280px;
+  }
 }

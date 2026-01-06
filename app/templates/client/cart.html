@@ -36,7 +36,16 @@
                   <td class="fw-semibold">{{ item.product_name }}</td>
                   <td class="text-muted">{{ item.gram }}g / {{ item.grind_type }}</td>
                   <td class="text-end">{{ '%.2f'|format(item.unit_price) }}₺</td>
-                  <td class="text-end">{{ item.qty }}</td>
+                  <td class="text-end">
+                    <div class="d-flex justify-content-end align-items-center gap-2">
+                      <form method="post" action="{{ url_for('client.cart_qty') }}" class="d-inline">
+                        <input type="hidden" name="idx" value="{{ loop.index0 }}">
+                        <button class="btn btn-sm btn-outline-dark" type="submit" name="delta" value="-1">-</button>
+                        <span class="badge text-bg-light text-dark border align-middle">{{ item.qty }}</span>
+                        <button class="btn btn-sm btn-outline-dark" type="submit" name="delta" value="1">+</button>
+                      </form>
+                    </div>
+                  </td>
                   <td class="text-end">{{ '%.2f'|format(item.unit_price * item.qty) }}₺</td>
                   <td class="text-end">
                     <form method="post" action="{{ url_for('client.cart_remove') }}" onsubmit="return confirm('Sepetten çıkarılsın mı?')">

@@ -6,7 +6,27 @@
   <div class="row g-4">
     <div class="col-12 col-lg-5">
       <div class="card shadow-sm">
-        {% if product.image_path %}
+        {% if images %}
+          <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+            <div class="carousel-inner">
+              {% for img in images %}
+                <div class="carousel-item {% if loop.first %}active{% endif %}">
+                  <img src="{{ url_for('static', filename=img.image_path) }}" class="d-block w-100" alt="{{ product.name }}">
+                </div>
+              {% endfor %}
+            </div>
+            {% if images|length > 1 %}
+              <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Önceki</span>
+              </button>
+              <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="visually-hidden">Sonraki</span>
+              </button>
+            {% endif %}
+          </div>
+        {% elif product.image_path %}
           <img src="{{ url_for('static', filename=product.image_path) }}" class="card-img-top" alt="{{ product.name }}">
         {% else %}
           <div class="placeholder-img d-flex align-items-center justify-content-center">
@@ -24,19 +44,44 @@
         <span class="badge text-bg-secondary fs-6">{{ product.roast_type }}</span>
       </div>
 
+      <div class="d-flex flex-wrap gap-2 mt-2">
+        {% if product.origin %}
+          <span class="badge rounded-pill bg-body-tertiary text-body border">{{ product.origin }}</span>
+        {% endif %}
+        {% if product.process %}
+          <span class="badge rounded-pill bg-body-tertiary text-body border">{{ product.process }}</span>
+        {% endif %}
+        {% if product.espresso_compatible == 1 %}
+          <span class="badge rounded-pill text-bg-dark">Espresso uyumlu</span>
+        {% endif %}
+        {% if (product.stock_gram or 0) | int <= 0 %}
+          <span class="badge rounded-pill text-bg-danger">Stok yok</span>
+        {% else %}
+          <span class="badge rounded-pill text-bg-success">Stok: {{ product.stock_gram }}g</span>
+        {% endif %}
+      </div>
+
       <div class="card mt-3 shadow-sm">
         <div class="card-body">
           <div class="row g-2 mb-3">
-            <div class="col-12 col-md-4"><div class="p-2 border rounded bg-light">250g: <strong>{{ '%.2f'|format(product.price_250) }}₺</strong></div></div>
-            <div class="col-12 col-md-4"><div class="p-2 border rounded bg-light">500g: <strong>{{ '%.2f'|format(product.price_500) }}₺</strong></div></div>
-            <div class="col-12 col-md-4"><div class="p-2 border rounded bg-light">1000g: <strong>{{ '%.2f'|format(product.price_1000) }}₺</strong></div></div>
+            <div class="col-12 col-md-4"><div class="p-3 border rounded bg-body-tertiary"><div class="text-muted small">250g</div><div class="fs-5 fw-semibold">{{ '%.2f'|format(product.price_250) }}₺</div></div></div>
+            <div class="col-12 col-md-4"><div class="p-3 border rounded bg-body-tertiary"><div class="text-muted small">500g</div><div class="fs-5 fw-semibold">{{ '%.2f'|format(product.price_500) }}₺</div></div></div>
+            <div class="col-12 col-md-4"><div class="p-3 border rounded bg-body-tertiary"><div class="text-muted small">1000g</div><div class="fs-5 fw-semibold">{{ '%.2f'|format(product.price_1000) }}₺</div></div></div>
           </div>
 
-          <div class="text-muted mb-3">Stok: {{ product.stock_gram }}g</div>
-
           <div class="d-flex gap-2">
-            <a class="btn btn-dark" href="{{ url_for('client.home') }}?order={{ product.id }}#urunler">Sipariş Ver</a>
+            {% if (product.stock_gram or 0) | int <= 0 %}
+              <a class="btn btn-dark disabled" aria-disabled="true" href="#">Stok yok</a>
+            {% else %}
+              <a class="btn btn-dark" href="{{ url_for('client.home') }}?order={{ product.id }}#urunler">Sipariş Ver</a>
+            {% endif %}
             <a class="btn btn-outline-dark" href="{{ url_for('client.home') }}#urunler">Ürünlere Dön</a>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            {% if product.acidity %}<span class="badge bg-body-tertiary text-body border">Asidite: {{ product.acidity }}/5</span>{% endif %}
+            {% if product.body %}<span class="badge bg-body-tertiary text-body border">Gövde: {{ product.body }}/5</span>{% endif %}
+            {% if product.sweetness %}<span class="badge bg-body-tertiary text-body border">Tatlılık: {{ product.sweetness }}/5</span>{% endif %}
           </div>
         </div>
       </div>
@@ -47,13 +92,23 @@
 
           <div class="row g-3">
             <div class="col-12 col-md-6">
-              <div class="p-3 border rounded bg-light h-100">
+              <div class="p-3 border rounded bg-body-tertiary h-100">
                 <div class="fw-semibold">Kavrum Profili</div>
                 <div class="text-muted">{{ product.roast_type }} kavrum</div>
               </div>
             </div>
             <div class="col-12 col-md-6">
-              <div class="p-3 border rounded bg-light h-100">
+              <div class="p-3 border rounded bg-body-tertiary h-100">
+                <div class="fw-semibold">Menşei / İşleme</div>
+                <div class="text-muted">
+                  {{ product.origin or '—' }}
+                  {% if product.process %} • {{ product.process }}{% endif %}
+                  {% if product.altitude %} • {{ product.altitude }}m{% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="p-3 border rounded bg-body-tertiary h-100">
                 <div class="fw-semibold">Önerilen Demleme</div>
                 {% if product.roast_type == 'Açık' %}
                   <div class="text-muted">V60 / Chemex / Aeropress</div>
@@ -65,15 +120,21 @@
               </div>
             </div>
             <div class="col-12 col-md-6">
-              <div class="p-3 border rounded bg-light h-100">
+              <div class="p-3 border rounded bg-body-tertiary h-100">
                 <div class="fw-semibold">Öğütüm Tavsiyesi</div>
                 <div class="text-muted">Türk: çok ince • Filtre: orta • Espresso: ince • Çekirdek: öğütülmez</div>
               </div>
             </div>
             <div class="col-12 col-md-6">
-              <div class="p-3 border rounded bg-light h-100">
+              <div class="p-3 border rounded bg-body-tertiary h-100">
                 <div class="fw-semibold">Saklama</div>
                 <div class="text-muted">Serin-kuru yerde, hava almayan kapta. Güneşten uzak.</div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="p-3 border rounded bg-body-tertiary h-100">
+                <div class="fw-semibold">Tadım Notları</div>
+                <div class="text-muted">{{ product.tasting_notes or product.description }}</div>
               </div>
             </div>
           </div>

@@ -35,6 +35,23 @@
           <div class="fw-semibold">{{ order.customer_name }}</div>
           <div class="text-muted mt-2">Telefon</div>
           <div class="fw-semibold">{{ order.customer_phone }}</div>
+
+          <div class="text-muted mt-3">Teslimat</div>
+          {% if order.delivery_type == 'delivery' %}
+            <div class="fw-semibold">Adrese Teslim</div>
+          {% else %}
+            <div class="fw-semibold">Gel-Al</div>
+          {% endif %}
+
+          {% if order.delivery_type == 'delivery' and order.address %}
+            <div class="text-muted mt-2">Adres</div>
+            <div class="fw-semibold">{{ order.address }}</div>
+          {% endif %}
+
+          {% if order.note %}
+            <div class="text-muted mt-2">Not</div>
+            <div class="fw-semibold">{{ order.note }}</div>
+          {% endif %}
         </div>
       </div>
     </div>

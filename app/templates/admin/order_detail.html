@@ -9,6 +9,7 @@
       <div class="text-muted">{{ order.customer_name }} / {{ order.customer_phone }} - {{ order.created_at }}</div>
     </div>
     <div>
+      <a class="btn btn-light" target="_blank" href="{{ url_for('admin.orders_print', order_id=order.id) }}">Yazdır</a>
       <a class="btn btn-outline-light" href="{{ url_for('admin.orders_list') }}">Geri</a>
     </div>
   </div>
@@ -31,6 +32,25 @@
               <span class="badge text-bg-info fs-6">{{ order.status }}</span>
             {% endif %}
           </div>
+
+          <div class="text-muted mb-2">Teslimat</div>
+          <div class="mb-3">
+            {% if order.delivery_type == 'delivery' %}
+              <span class="badge text-bg-primary">Adrese Teslim</span>
+            {% else %}
+              <span class="badge text-bg-secondary">Gel-Al</span>
+            {% endif %}
+          </div>
+
+          {% if order.delivery_type == 'delivery' and order.address %}
+            <div class="text-muted">Adres</div>
+            <div class="mb-3">{{ order.address }}</div>
+          {% endif %}
+
+          {% if order.note %}
+            <div class="text-muted">Not</div>
+            <div class="mb-3">{{ order.note }}</div>
+          {% endif %}
 
           <form method="post" action="{{ url_for('admin.orders_update_status', order_id=order.id) }}" class="vstack gap-2">
             <select class="form-select" name="status" required>

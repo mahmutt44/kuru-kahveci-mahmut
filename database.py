@@ -57,6 +57,25 @@ def init_db(db_path: str):
             """
         )
 
+        cur.execute("PRAGMA table_info(products);")
+        product_cols = [r[1] for r in cur.fetchall()]
+        if "origin" not in product_cols:
+            cur.execute("ALTER TABLE products ADD COLUMN origin TEXT;")
+        if "process" not in product_cols:
+            cur.execute("ALTER TABLE products ADD COLUMN process TEXT;")
+        if "altitude" not in product_cols:
+            cur.execute("ALTER TABLE products ADD COLUMN altitude INTEGER;")
+        if "tasting_notes" not in product_cols:
+            cur.execute("ALTER TABLE products ADD COLUMN tasting_notes TEXT;")
+        if "acidity" not in product_cols:
+            cur.execute("ALTER TABLE products ADD COLUMN acidity INTEGER NOT NULL DEFAULT 3;")
+        if "body" not in product_cols:
+            cur.execute("ALTER TABLE products ADD COLUMN body INTEGER NOT NULL DEFAULT 3;")
+        if "sweetness" not in product_cols:
+            cur.execute("ALTER TABLE products ADD COLUMN sweetness INTEGER NOT NULL DEFAULT 3;")
+        if "espresso_compatible" not in product_cols:
+            cur.execute("ALTER TABLE products ADD COLUMN espresso_compatible INTEGER NOT NULL DEFAULT 0;")
+
         cur.execute(
             """
             CREATE TABLE IF NOT EXISTS orders (
@@ -69,6 +88,15 @@ def init_db(db_path: str):
             """
         )
 
+        cur.execute("PRAGMA table_info(orders);")
+        order_cols = [r[1] for r in cur.fetchall()]
+        if "delivery_type" not in order_cols:
+            cur.execute("ALTER TABLE orders ADD COLUMN delivery_type TEXT NOT NULL DEFAULT 'pickup';")
+        if "address" not in order_cols:
+            cur.execute("ALTER TABLE orders ADD COLUMN address TEXT;")
+        if "note" not in order_cols:
+            cur.execute("ALTER TABLE orders ADD COLUMN note TEXT;")
+
         cur.execute(
             """
             CREATE TABLE IF NOT EXISTS order_items (
@@ -79,6 +107,34 @@ def init_db(db_path: str):
                 gram INTEGER NOT NULL,
                 price REAL NOT NULL,
                 FOREIGN KEY(order_id) REFERENCES orders(id) ON DELETE CASCADE,
+                FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE RESTRICT
+            );
+            """
+        )
+
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS product_images (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_id INTEGER NOT NULL,
+                image_path TEXT NOT NULL,
+                sort_order INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL,
+                FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE CASCADE
+            );
+            """
+        )
+
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS stock_movements (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                product_id INTEGER NOT NULL,
+                change_gram INTEGER NOT NULL,
+                reason TEXT NOT NULL,
+                ref_type TEXT,
+                ref_id INTEGER,
+                created_at TEXT NOT NULL,
                 FOREIGN KEY(product_id) REFERENCES products(id) ON DELETE RESTRICT
             );
             """
@@ -117,6 +173,9 @@ def init_db(db_path: str):
         # Basit index'ler
         cur.execute("CREATE INDEX IF NOT EXISTS idx_orders_created_at ON orders(created_at);")
         cur.execute("CREATE INDEX IF NOT EXISTS idx_order_items_order_id ON order_items(order_id);")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_product_images_product_id ON product_images(product_id);")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_stock_movements_product_id ON stock_movements(product_id);")
+        cur.execute("CREATE INDEX IF NOT EXISTS idx_stock_movements_created_at ON stock_movements(created_at);")
 
         # İlk kurulumda örnek ürünler (uygulama boş açılmasın diye).
         cur.execute("SELECT COUNT(*) FROM products;")

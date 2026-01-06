@@ -3,31 +3,265 @@
 {% block title %}Ürünler - Kuru Kahveci Mahmut{% endblock %}
 
 {% block content %}
-  <div class="hero card shadow-sm border-0 mb-4">
-    <div class="card-body p-4 p-lg-5">
-      <div class="row g-3 align-items-center">
-        <div class="col-12 col-lg-8">
-          <h1 class="display-6 fw-semibold mb-2">Kuru Kahveci Mahmut</h1>
-          <div class="text-muted fs-5">Taze kavrum, doğru öğütüm ve hızlı hazırlık. Gramajını ve öğütme türünü seç, siparişini oluştur.</div>
-          <div class="d-flex gap-2 mt-3">
-            <a class="btn btn-dark" href="#urunler">Ürünlere Göz At</a>
-            <a class="btn btn-outline-dark" href="{{ url_for('client.about') }}">Hakkımızda</a>
+  {% if show_landing %}
+    <div class="hero card shadow-sm border-0 mb-4">
+      <div class="card-body p-4 p-lg-5">
+        <div class="row g-3 align-items-center">
+          <div class="col-12 col-lg-8">
+            <h1 class="display-6 fw-semibold mb-2">Kuru Kahveci Mahmut</h1>
+            <div class="text-muted fs-5">Taze kavrum, doğru öğütüm ve hızlı hazırlık. Gramajını ve öğütme türünü seç, siparişini oluştur.</div>
+            <div class="d-flex gap-2 mt-3">
+              <a class="btn btn-dark" href="#urunler">Ürünlere Göz At</a>
+              <a class="btn btn-outline-dark" href="{{ url_for('client.about') }}">Hakkımızda</a>
+            </div>
           </div>
-        </div>
-        <div class="col-12 col-lg-4 text-lg-end">
-          <div class="hero-badge d-inline-flex align-items-center gap-2">
-            <span class="badge rounded-pill text-bg-dark">Günlük kavrum</span>
-            <span class="badge rounded-pill text-bg-secondary">Özel harman</span>
+          <div class="col-12 col-lg-4 text-lg-end">
+            <div class="hero-badge d-inline-flex align-items-center gap-2">
+              <span class="badge rounded-pill text-bg-dark">Günlük kavrum</span>
+              <span class="badge rounded-pill text-bg-secondary">Özel harman</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-end justify-content-between mb-2">
+              <div>
+                <div class="fw-semibold">En Çok Satanlar</div>
+                <div class="text-muted small">Son siparişlere göre</div>
+              </div>
+              <a class="btn btn-sm btn-outline-dark" href="#urunler">Tümü</a>
+            </div>
+
+            {% if not best_sellers %}
+              <div class="text-muted">Henüz yeterli veri yok.</div>
+            {% else %}
+              <div class="row g-2">
+                {% for p in best_sellers %}
+                  <div class="col-6">
+                    <div class="card h-100">
+                      {% if p.image_path %}
+                        <img src="{{ url_for('static', filename=p.image_path) }}" class="card-img-top" alt="{{ p.name }}">
+                      {% else %}
+                        <div class="placeholder-img d-flex align-items-center justify-content-center">
+                          <div class="text-muted">Görsel yok</div>
+                        </div>
+                      {% endif %}
+                      <div class="card-body p-2">
+                        <div class="d-flex justify-content-between align-items-start">
+                          <div class="fw-semibold small">{{ p.name }}</div>
+                          <span class="badge text-bg-secondary">{{ p.roast_type }}</span>
+                        </div>
+                        <div class="text-muted small">250g: {{ '%.2f'|format(p.price_250) }}₺</div>
+                        <div class="d-flex gap-2 mt-2">
+                          {% if (p.stock_gram or 0) | int <= 0 %}
+                            <button type="button" class="btn btn-sm btn-dark w-100" disabled>Stok yok</button>
+                          {% else %}
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-dark w-100"
+                              data-bs-toggle="modal"
+                              data-bs-target="#orderModal"
+                              data-product-id="{{ p.id }}"
+                              data-product-name="{{ p.name }}"
+                              data-product-roast="{{ p.roast_type }}"
+                              data-product-stock="{{ p.stock_gram }}"
+                            >
+                              Sipariş
+                            </button>
+                          {% endif %}
+                          <a class="btn btn-sm btn-outline-dark w-100" href="{{ url_for('client.product_detail', product_id=p.id) }}">Detay</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-end justify-content-between mb-2">
+              <div>
+                <div class="fw-semibold">Yeni Gelenler</div>
+                <div class="text-muted small">Yeni eklenen ürünler</div>
+              </div>
+              <a class="btn btn-sm btn-outline-dark" href="#urunler">Tümü</a>
+            </div>
+
+            {% if not new_arrivals %}
+              <div class="text-muted">Henüz ürün yok.</div>
+            {% else %}
+              <div class="row g-2">
+                {% for p in new_arrivals %}
+                  <div class="col-6">
+                    <div class="card h-100">
+                      {% if p.image_path %}
+                        <img src="{{ url_for('static', filename=p.image_path) }}" class="card-img-top" alt="{{ p.name }}">
+                      {% else %}
+                        <div class="placeholder-img d-flex align-items-center justify-content-center">
+                          <div class="text-muted">Görsel yok</div>
+                        </div>
+                      {% endif %}
+                      <div class="card-body p-2">
+                        <div class="d-flex justify-content-between align-items-start">
+                          <div class="fw-semibold small">{{ p.name }}</div>
+                          <span class="badge text-bg-secondary">{{ p.roast_type }}</span>
+                        </div>
+                        <div class="text-muted small">250g: {{ '%.2f'|format(p.price_250) }}₺</div>
+                        <div class="d-flex gap-2 mt-2">
+                          {% if (p.stock_gram or 0) | int <= 0 %}
+                            <button type="button" class="btn btn-sm btn-dark w-100" disabled>Stok yok</button>
+                          {% else %}
+                            <button
+                              type="button"
+                              class="btn btn-sm btn-dark w-100"
+                              data-bs-toggle="modal"
+                              data-bs-target="#orderModal"
+                              data-product-id="{{ p.id }}"
+                              data-product-name="{{ p.name }}"
+                              data-product-roast="{{ p.roast_type }}"
+                              data-product-stock="{{ p.stock_gram }}"
+                            >
+                              Sipariş
+                            </button>
+                          {% endif %}
+                          <a class="btn btn-sm btn-outline-dark w-100" href="{{ url_for('client.product_detail', product_id=p.id) }}">Detay</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <div class="fw-semibold mb-2">Müşteri Yorumları</div>
+            <div class="row g-2">
+              <div class="col-12">
+                <div class="p-3 border rounded bg-body-tertiary">
+                  <div class="fw-semibold">"Kavrum tam kararında"</div>
+                  <div class="text-muted">Siparişim hızlı hazırlandı, espresso için çok iyi.</div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="p-3 border rounded bg-body-tertiary">
+                  <div class="fw-semibold">"Öğütüm seçeneği çok iyi"</div>
+                  <div class="text-muted">Türk kahvesi inceliği harika, paketleme özenli.</div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="p-3 border rounded bg-body-tertiary">
+                  <div class="fw-semibold">"Tadım notları doğru"</div>
+                  <div class="text-muted">Notlarda yazan aromaları gerçekten aldım.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-body">
+            <div class="fw-semibold mb-2">SSS</div>
+            <div class="accordion" id="faqAcc">
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">Kahve ne kadar taze?</button>
+                </h2>
+                <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAcc">
+                  <div class="accordion-body text-muted">Siparişlere günlük kavrum önceliği veriyoruz. En iyi deneyim için 2-3 hafta içinde tüketmenizi öneririz.</div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">Hangi öğütüm seçilmeli?</button>
+                </h2>
+                <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
+                  <div class="accordion-body text-muted">Türk: çok ince • Filtre: orta • Espresso: ince • Çekirdek: öğütülmez.</div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">Adrese teslim var mı?</button>
+                </h2>
+                <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAcc">
+                  <div class="accordion-body text-muted">Evet. Checkout ekranında "Adrese Teslim" seçip adresinizi yazabilirsiniz.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
 
   <div class="d-flex align-items-end justify-content-between mb-3" id="urunler">
     <div>
       <h2 class="h4 mb-1">Taze Kahveler</h2>
       <div class="text-muted">Kavrum seçeneği, gramaj ve öğütme tercihiyle sipariş verin.</div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <form method="get" action="{{ url_for('client.home') }}#urunler" class="row g-2 align-items-end">
+        <div class="col-12 col-lg-4">
+          <label class="form-label">Arama</label>
+          <input class="form-control" name="q" value="{{ q or '' }}" placeholder="Ürün adı...">
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-2">
+          <label class="form-label">Kavrum</label>
+          <select class="form-select" name="roast_type">
+            <option value="">Tümü</option>
+            <option value="Açık" {% if roast_type == 'Açık' %}selected{% endif %}>Açık</option>
+            <option value="Orta" {% if roast_type == 'Orta' %}selected{% endif %}>Orta</option>
+            <option value="Koyu" {% if roast_type == 'Koyu' %}selected{% endif %}>Koyu</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-6 col-lg-2">
+          <label class="form-label">Menşei</label>
+          <input class="form-control" name="origin" value="{{ origin or '' }}" placeholder="Örn: Kolombiya">
+        </div>
+
+        <div class="col-6 col-lg-1">
+          <label class="form-label">Min</label>
+          <input class="form-control" name="min_price" value="{{ min_price or '' }}" placeholder="₺">
+        </div>
+        <div class="col-6 col-lg-1">
+          <label class="form-label">Max</label>
+          <input class="form-control" name="max_price" value="{{ max_price or '' }}" placeholder="₺">
+        </div>
+
+        <div class="col-12 col-lg-2">
+          <div class="form-check mb-2">
+            <input class="form-check-input" type="checkbox" id="espresso" name="espresso" value="1" {% if espresso == '1' %}checked{% endif %}>
+            <label class="form-check-label" for="espresso">Espresso uyumlu</label>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-dark w-100" type="submit">Filtrele</button>
+            <a class="btn btn-outline-dark w-100" href="{{ url_for('client.home') }}#urunler">Sıfırla</a>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -50,23 +284,42 @@
                 <h5 class="card-title mb-1">{{ p.name }}</h5>
                 <span class="badge text-bg-secondary">{{ p.roast_type }}</span>
               </div>
+
+              <div class="d-flex flex-wrap gap-2 mb-2">
+                {% if p.origin %}
+                  <span class="badge rounded-pill text-bg-light text-dark border">{{ p.origin }}</span>
+                {% endif %}
+                {% if p.espresso_compatible == 1 %}
+                  <span class="badge rounded-pill text-bg-dark">Espresso</span>
+                {% endif %}
+                {% if (p.stock_gram or 0) | int <= 0 %}
+                  <span class="badge rounded-pill text-bg-danger">Tükendi</span>
+                {% else %}
+                  <span class="badge rounded-pill text-bg-success">Stokta</span>
+                {% endif %}
+              </div>
+
               <p class="card-text text-muted mb-3">{{ p.description }}</p>
               <div class="d-flex justify-content-between align-items-center">
                 <div class="fw-semibold">250g: {{ '%.2f'|format(p.price_250) }}₺</div>
               </div>
               <div class="d-flex gap-2 mt-3">
-                <button
-                  type="button"
-                  class="btn btn-dark w-100"
-                  data-bs-toggle="modal"
-                  data-bs-target="#orderModal"
-                  data-product-id="{{ p.id }}"
-                  data-product-name="{{ p.name }}"
-                  data-product-roast="{{ p.roast_type }}"
-                  data-product-stock="{{ p.stock_gram }}"
-                >
-                  Sipariş Ver
-                </button>
+                {% if (p.stock_gram or 0) | int <= 0 %}
+                  <button type="button" class="btn btn-dark w-100" disabled>Stok yok</button>
+                {% else %}
+                  <button
+                    type="button"
+                    class="btn btn-dark w-100"
+                    data-bs-toggle="modal"
+                    data-bs-target="#orderModal"
+                    data-product-id="{{ p.id }}"
+                    data-product-name="{{ p.name }}"
+                    data-product-roast="{{ p.roast_type }}"
+                    data-product-stock="{{ p.stock_gram }}"
+                  >
+                    Sipariş Ver
+                  </button>
+                {% endif %}
                 <a class="btn btn-outline-dark w-100" href="{{ url_for('client.product_detail', product_id=p.id) }}">Detay</a>
               </div>
             </div>
@@ -130,6 +383,7 @@
       var titleEl = document.getElementById('orderModalTitle');
       var subtitleEl = document.getElementById('orderModalSubtitle');
       var productIdEl = document.getElementById('orderProductId');
+      var qtyEl = modalEl.querySelector('input[name="qty"]');
 
       modalEl.addEventListener('show.bs.modal', function (event) {
         var button = event.relatedTarget;
@@ -142,6 +396,7 @@
         if (titleEl) titleEl.textContent = name;
         if (subtitleEl) subtitleEl.textContent = (roast ? (roast + ' kavrum') : '') + (stock ? (' • Stok: ' + stock + 'g') : '');
         if (productIdEl) productIdEl.value = pid;
+        if (qtyEl) qtyEl.value = '1';
       });
 
       var params = new URLSearchParams(window.location.search);

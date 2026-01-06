@@ -65,15 +65,94 @@ def _product_price_by_gram(product_row, gram: int) -> float | None:
 @client_bp.get("/")
 def home():
     db_path = current_app.config["DB_PATH"]
-    products = fetch_all(
-        db_path,
-        "SELECT * FROM products WHERE is_active=1 ORDER BY id DESC",
-    )
+    q = (request.args.get("q") or "").strip()
+    roast_type = (request.args.get("roast_type") or "").strip()
+    origin = (request.args.get("origin") or "").strip()
+    espresso = (request.args.get("espresso") or "").strip()
+    min_price = (request.args.get("min_price") or "").strip()
+    max_price = (request.args.get("max_price") or "").strip()
+
+    show_landing = not any([q, roast_type, origin, espresso, min_price, max_price])
+
+    best_sellers = []
+    new_arrivals = []
+    if show_landing:
+        best_sellers = fetch_all(
+            db_path,
+            """
+            SELECT p.*, COUNT(oi.id) AS sold_count
+            FROM products p
+            JOIN order_items oi ON oi.product_id = p.id
+            JOIN orders o ON o.id = oi.order_id
+            WHERE p.is_active=1
+            GROUP BY p.id
+            ORDER BY sold_count DESC, p.id DESC
+            LIMIT 4
+            """,
+        )
+        new_arrivals = fetch_all(
+            db_path,
+            "SELECT * FROM products WHERE is_active=1 ORDER BY id DESC LIMIT 4",
+        )
+
+    where = ["is_active=1"]
+    params: list[object] = []
+
+    if q:
+        where.append("name LIKE ?")
+        params.append(f"%{q}%")
+
+    if roast_type in ("Açık", "Orta", "Koyu"):
+        where.append("roast_type = ?")
+        params.append(roast_type)
+    else:
+        roast_type = ""
+
+    if origin:
+        where.append("origin LIKE ?")
+        params.append(f"%{origin}%")
+
+    if espresso in ("1", "on", "true"):
+        where.append("espresso_compatible = 1")
+        espresso = "1"
+    else:
+        espresso = ""
+
+    def _pf(v: str) -> float | None:
+        try:
+            return float(v.replace(",", "."))
+        except Exception:
+            return None
+
+    min_p = _pf(min_price) if min_price else None
+    max_p = _pf(max_price) if max_price else None
+    if min_p is not None:
+        where.append("price_250 >= ?")
+        params.append(min_p)
+    if max_p is not None:
+        where.append("price_250 <= ?")
+        params.append(max_p)
+
+    sql = "SELECT * FROM products"
+    if where:
+        sql += " WHERE " + " AND ".join(where)
+    sql += " ORDER BY id DESC"
+
+    products = fetch_all(db_path, sql, tuple(params))
     return render_template(
         "client/home.html",
         products=products,
         gram_options=GRAM_OPTIONS,
         grind_options=GRIND_OPTIONS,
+        q=q,
+        roast_type=roast_type,
+        origin=origin,
+        espresso=espresso,
+        min_price=min_price,
+        max_price=max_price,
+        show_landing=show_landing,
+        best_sellers=best_sellers,
+        new_arrivals=new_arrivals,
     )
 
 
@@ -85,9 +164,26 @@ def product_detail(product_id: int):
         flash("Ürün bulunamadı veya satışta değil.", "danger")
         return redirect(url_for("client.home"))
 
+    gallery = fetch_all(
+        db_path,
+        "SELECT image_path FROM product_images WHERE product_id=? ORDER BY sort_order ASC, id ASC",
+        (product_id,),
+    )
+
+    images = []
+    if "image_path" in product.keys() and product["image_path"]:
+        images.append({"image_path": product["image_path"]})
+    for g in gallery:
+        if "image_path" not in g.keys() or not g["image_path"]:
+            continue
+        if images and images[0].get("image_path") == g["image_path"]:
+            continue
+        images.append({"image_path": g["image_path"]})
+
     return render_template(
         "client/product_detail.html",
         product=product,
+        images=images,
         gram_options=GRAM_OPTIONS,
         grind_options=GRIND_OPTIONS,
     )
@@ -160,6 +256,58 @@ def cart_add():
     return redirect(url_for("client.cart"))
 
 
+@client_bp.post("/cart/qty")
+def cart_qty():
+    cart = _get_cart()
+    try:
+        idx = int(request.form.get("idx", "-1"))
+        delta = int(request.form.get("delta", "0"))
+    except ValueError:
+        return redirect(url_for("client.cart"))
+
+    if not (0 <= idx < len(cart)):
+        return redirect(url_for("client.cart"))
+
+    if delta not in (-1, 1):
+        return redirect(url_for("client.cart"))
+
+    current = int(cart[idx].get("qty", 1))
+    new_qty = current + delta
+
+    if new_qty <= 0:
+        cart.pop(idx)
+    else:
+        if new_qty > 20:
+            new_qty = 20
+        cart[idx]["qty"] = new_qty
+
+    _save_cart(cart)
+    return redirect(url_for("client.cart"))
+
+
+@client_bp.post("/cart/set")
+def cart_set():
+    cart = _get_cart()
+    try:
+        idx = int(request.form.get("idx", "-1"))
+        qty = int(request.form.get("qty", "1"))
+    except ValueError:
+        return redirect(url_for("client.cart"))
+
+    if not (0 <= idx < len(cart)):
+        return redirect(url_for("client.cart"))
+
+    if qty <= 0:
+        cart.pop(idx)
+    else:
+        if qty > 20:
+            qty = 20
+        cart[idx]["qty"] = qty
+
+    _save_cart(cart)
+    return redirect(url_for("client.cart"))
+
+
 @client_bp.get("/cart")
 def cart():
     cart = _get_cart()
@@ -215,6 +363,14 @@ def checkout_submit():
         flash("Sepet boş.", "warning")
         return redirect(url_for("client.home"))
 
+    delivery_type = (request.form.get("delivery_type") or "pickup").strip()
+    address = (request.form.get("address") or "").strip()
+    note = (request.form.get("note") or "").strip()
+
+    if delivery_type not in ("pickup", "delivery"):
+        flash("Teslimat tipi geçersiz.", "danger")
+        return redirect(url_for("client.checkout"))
+
     customer_name = (request.form.get("customer_name") or "").strip()
     customer_phone = (request.form.get("customer_phone") or "").strip()
 
@@ -228,6 +384,13 @@ def checkout_submit():
         return redirect(url_for("client.checkout"))
 
     customer_phone = normalized_phone
+
+    if delivery_type == "delivery" and len(address) < 10:
+        flash("Adrese teslim için adres alanı zorunludur.", "danger")
+        return redirect(url_for("client.checkout"))
+
+    if len(note) > 250:
+        note = note[:250]
 
     # Stok kontrolü: ürün bazında toplam gram ihtiyacı
     required_grams = defaultdict(int)
@@ -257,8 +420,11 @@ def checkout_submit():
         cur = conn.cursor()
 
         cur.execute(
-            "INSERT INTO orders (customer_name, customer_phone, status, created_at) VALUES (?, ?, ?, ?)",
-            (customer_name, customer_phone, "alındı", now_str()),
+            """
+            INSERT INTO orders (customer_name, customer_phone, status, created_at, delivery_type, address, note)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (customer_name, customer_phone, "alındı", now_str(), delivery_type, address or None, note or None),
         )
         order_id = cur.lastrowid
 
@@ -290,6 +456,27 @@ def checkout_submit():
             if cur.rowcount != 1:
                 # Çok nadiren yarış durumunda (concurrency) stok düşmeyebilir.
                 raise RuntimeError("Stok güncellenemedi. Lütfen tekrar deneyin.")
+
+        movement_rows = []
+        for pid, need_gram in required_grams.items():
+            movement_rows.append(
+                (
+                    pid,
+                    -int(need_gram),
+                    "Sipariş ile stok düşümü",
+                    "order",
+                    int(order_id),
+                    now_str(),
+                )
+            )
+        if movement_rows:
+            cur.executemany(
+                """
+                INSERT INTO stock_movements (product_id, change_gram, reason, ref_type, ref_id, created_at)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                movement_rows,
+            )
 
         conn.commit()
 

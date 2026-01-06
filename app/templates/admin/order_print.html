@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sipariş #{{ order.id }} - Yazdır</title>
+    <style>
+      :root {
+        --fg: #111;
+        --muted: #555;
+        --border: #ddd;
+      }
+
+      html, body {
+        background: #fff;
+        color: var(--fg);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        font-size: 11.5px;
+        line-height: 1.32;
+        margin: 0;
+        padding: 0;
+      }
+
+      .sheet {
+        max-width: 380px;
+        margin: 0 auto;
+        padding: 14px;
+      }
+
+      .title {
+        font-size: 15px;
+        font-weight: 700;
+        margin: 0 0 2px 0;
+      }
+
+      .sub {
+        color: var(--muted);
+        margin: 0 0 10px 0;
+      }
+
+      .row {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .block {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 9px;
+        margin: 10px 0;
+      }
+
+      .k {
+        color: var(--muted);
+        font-size: 11px;
+        margin: 0;
+      }
+
+      .v {
+        margin: 0 0 8px 0;
+        font-weight: 600;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th, td {
+        padding: 5px 0;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+
+      th {
+        text-align: left;
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .right {
+        text-align: right;
+      }
+
+      .tot {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-top: 8px;
+      }
+
+      .tot .label {
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .tot .amount {
+        font-size: 15px;
+        font-weight: 800;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .btn {
+        appearance: none;
+        border: 1px solid var(--border);
+        background: #f6f6f6;
+        color: var(--fg);
+        padding: 8px 10px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 700;
+        width: 100%;
+      }
+
+      @media print {
+        .actions { display: none; }
+        .sheet { max-width: none; padding: 0; }
+        @page { margin: 7mm; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sheet">
+      <h1 class="title">Kuru Kahveci Mahmut</h1>
+      <p class="sub">Sipariş #{{ order.id }} • {{ order.created_at }}</p>
+
+      <div class="block">
+        <div class="row">
+          <div>
+            <p class="k">Müşteri</p>
+            <p class="v">{{ order.customer_name }}</p>
+          </div>
+          <div class="right">
+            <p class="k">Telefon</p>
+            <p class="v">{{ order.customer_phone }}</p>
+          </div>
+        </div>
+
+        <p class="k">Durum</p>
+        <p class="v">{{ order.status }}</p>
+
+        <p class="k">Teslimat</p>
+        <p class="v">{% if order.delivery_type == 'delivery' %}Adrese Teslim{% else %}Gel-Al{% endif %}</p>
+
+        {% if order.delivery_type == 'delivery' and order.address %}
+          <p class="k">Adres</p>
+          <p class="v">{{ order.address }}</p>
+        {% endif %}
+
+        {% if order.note %}
+          <p class="k">Not</p>
+          <p class="v">{{ order.note }}</p>
+        {% endif %}
+      </div>
+
+      <div class="block">
+        <table>
+          <thead>
+            <tr>
+              <th>Ürün</th>
+              <th>Seçim</th>
+              <th class="right">Adet</th>
+              <th class="right">Tutar</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for it in items %}
+              <tr>
+                <td>
+                  <div style="font-weight: 700;">{{ it.product_name }}</div>
+                  <div style="color: var(--muted); font-size: 11px;">Birim: {{ '%.2f'|format(it.unit_price) }}₺</div>
+                </td>
+                <td style="color: var(--muted);">{{ it.gram }}g / {{ it.grind_type }}</td>
+                <td class="right">{{ it.qty }}</td>
+                <td class="right">{{ '%.2f'|format(it.subtotal) }}₺</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="tot">
+          <div class="label">Toplam</div>
+          <div class="amount">{{ '%.2f'|format(total) }}₺</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" type="button" onclick="window.print()">Yazdır</button>
+        <button class="btn" type="button" onclick="window.close()">Kapat</button>
+      </div>
+    </div>
+
+    <script>
+      window.addEventListener('load', function () {
+        setTimeout(function () {
+          window.print();
+        }, 200);
+      });
+    </script>
+  </body>
+</html>

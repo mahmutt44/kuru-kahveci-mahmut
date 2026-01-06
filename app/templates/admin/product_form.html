@@ -37,6 +37,56 @@
           <textarea class="form-control" name="description" rows="3">{{ product.description if product else '' }}</textarea>
         </div>
 
+        <div class="col-12 col-md-6">
+          <label class="form-label">Menşei (origin)</label>
+          <input class="form-control" name="origin" placeholder="Örn: Kolombiya" value="{{ product.origin if product else '' }}">
+        </div>
+        <div class="col-12 col-md-6">
+          <label class="form-label">İşleme (process)</label>
+          <input class="form-control" name="process" placeholder="Örn: Yıkanmış / Doğal" value="{{ product.process if product else '' }}">
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label">Rakım (m)</label>
+          <input class="form-control" type="number" name="altitude" min="0" placeholder="Örn: 1600" value="{{ product.altitude if product else '' }}">
+        </div>
+        <div class="col-12 col-md-8">
+          <label class="form-label">Tadım Notları</label>
+          <input class="form-control" name="tasting_notes" placeholder="Örn: Çikolata, fındık, narenciye" value="{{ product.tasting_notes if product else '' }}">
+        </div>
+
+        <div class="col-12 col-md-4">
+          <label class="form-label">Asidite (1-5)</label>
+          <select class="form-select" name="acidity">
+            {% for v in [1,2,3,4,5] %}
+              <option value="{{ v }}" {% if product and product.acidity == v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label">Gövde (1-5)</label>
+          <select class="form-select" name="body">
+            {% for v in [1,2,3,4,5] %}
+              <option value="{{ v }}" {% if product and product.body == v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-md-4">
+          <label class="form-label">Tatlılık (1-5)</label>
+          <select class="form-select" name="sweetness">
+            {% for v in [1,2,3,4,5] %}
+              <option value="{{ v }}" {% if product and product.sweetness == v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="col-12">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="1" id="espresso_compatible" name="espresso_compatible" {% if product and product.espresso_compatible == 1 %}checked{% endif %}>
+            <label class="form-check-label" for="espresso_compatible">Espresso uyumlu</label>
+          </div>
+        </div>
+
         <div class="col-12 col-md-4">
           <label class="form-label">Kavrum türü</label>
           <select class="form-select" name="roast_type" required>
@@ -112,6 +162,36 @@
             </div>
           </div>
         </div>
+
+        <div class="col-12">
+          <label class="form-label">Galeri Görselleri (çoklu yükleme)</label>
+          <input class="form-control" type="file" name="gallery_files" accept="image/*" multiple>
+          <div class="form-text">Birden fazla görsel seçebilirsiniz. Yüklenenler <code>product_images</code> tablosuna eklenir.</div>
+        </div>
+
+        {% if images %}
+          <div class="col-12">
+            <div class="card bg-transparent border-secondary-subtle">
+              <div class="card-body">
+                <div class="fw-semibold mb-2">Mevcut Galeri</div>
+                <div class="row g-2">
+                  {% for img in images %}
+                    <div class="col-6 col-md-3">
+                      <div class="card">
+                        <img src="{{ url_for('static', filename=img.image_path) }}" class="card-img-top" alt="Görsel">
+                        <div class="card-body p-2">
+                          <form method="post" action="{{ url_for('admin.product_image_delete', product_id=product.id, image_id=img.id) }}" onsubmit="return confirm('Görsel kaldırılsın mı?')">
+                            <button class="btn btn-sm btn-outline-danger w-100" type="submit">Kaldır</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
 
         <div class="col-12 d-flex gap-2">
           <button class="btn btn-light" type="submit">Kaydet</button>

@@ -1,11 +1,69 @@
 body {
   font-feature-settings: "ss01";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 .card {
   border-color: rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+}
+
+.card.shadow-sm {
+  box-shadow: 0 0.65rem 1.6rem rgba(0, 0, 0, 0.28) !important;
+}
+
+.btn {
+  border-radius: 12px;
+  font-weight: 600;
+  transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease, border-color 120ms ease;
+}
+
+.btn:active {
+  transform: translateY(1px);
+}
+
+.form-control,
+.form-select {
+  border-radius: 12px;
+}
+
+.form-control:focus,
+.form-select:focus {
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.20);
+  border-color: rgba(13, 110, 253, 0.60);
+}
+
+.table-dark {
+  --bs-table-bg: rgba(0, 0, 0, 0.18);
+}
+
+.table-dark thead th {
+  color: rgba(255, 255, 255, 0.80);
+  font-weight: 700;
+}
+
+.table-dark th,
+.table-dark td {
+  padding: 0.65rem 0.75rem;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .table {
   margin-bottom: 0;
+}
+
+.table-wrap {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.navbar i[data-lucide],
+.btn i[data-lucide] {
+  width: 18px;
+  height: 18px;
 }

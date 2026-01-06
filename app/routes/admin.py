@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import uuid
 from functools import wraps
 
 from flask import (
@@ -16,7 +17,7 @@ from flask import (
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 
-from database import execute, fetch_all, fetch_one
+from database import execute, execute_many, fetch_all, fetch_one, now_str
 
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -167,11 +168,25 @@ def products_new_post():
     description = (request.form.get("description") or "").strip()
     roast_type = (request.form.get("roast_type") or "").strip()
 
+    origin = (request.form.get("origin") or "").strip() or None
+    process = (request.form.get("process") or "").strip() or None
+    tasting_notes = (request.form.get("tasting_notes") or "").strip() or None
+
+    espresso_compatible = 1 if (request.form.get("espresso_compatible") in ("1", "on", "true")) else 0
+
     def _f(key: str) -> float:
         return float((request.form.get(key) or "0").replace(",", "."))
 
     def _i(key: str) -> int:
         return int(request.form.get(key) or "0")
+
+    def _r(key: str) -> int:
+        v = int(request.form.get(key) or "3")
+        if v < 1:
+            v = 1
+        if v > 5:
+            v = 5
+        return v
 
     if len(name) < 2:
         flash("Ürün adı zorunludur.", "danger")
@@ -186,6 +201,10 @@ def products_new_post():
         price_500 = _f("price_500")
         price_1000 = _f("price_1000")
         stock_gram = _i("stock_gram")
+        altitude = _i("altitude") if (request.form.get("altitude") or "").strip() else None
+        acidity = _r("acidity")
+        body = _r("body")
+        sweetness = _r("sweetness")
     except ValueError:
         flash("Fiyat/stock alanları geçersiz.", "danger")
         return redirect(url_for("admin.products_new"))
@@ -210,14 +229,62 @@ def products_new_post():
         file.save(file_path)
         image_path = f"images/{filename}"
 
-    execute(
+    product_id = execute(
         db_path,
         """
-        INSERT INTO products (name, description, roast_type, price_250, price_500, price_1000, stock_gram, image_path, is_active)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+        INSERT INTO products (
+            name, description, roast_type,
+            price_250, price_500, price_1000,
+            stock_gram, image_path, is_active,
+            origin, process, altitude, tasting_notes,
+            acidity, body, sweetness,
+            espresso_compatible
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        (name, description, roast_type, price_250, price_500, price_1000, stock_gram, image_path),
+        (
+            name,
+            description,
+            roast_type,
+            price_250,
+            price_500,
+            price_1000,
+            stock_gram,
+            image_path,
+            origin,
+            process,
+            altitude,
+            tasting_notes,
+            acidity,
+            body,
+            sweetness,
+            espresso_compatible,
+        ),
     )
+
+    gallery_files = request.files.getlist("gallery_files")
+    rows = []
+    sort_order = 0
+    for f in gallery_files:
+        if not f or not f.filename:
+            continue
+        original = secure_filename(f.filename)
+        filename = f"{uuid.uuid4().hex}_{original}" if original else f"{uuid.uuid4().hex}.jpg"
+        save_dir = os.path.join(current_app.static_folder, "images")
+        os.makedirs(save_dir, exist_ok=True)
+        f.save(os.path.join(save_dir, filename))
+        rows.append((product_id, f"images/{filename}", sort_order, now_str()))
+        sort_order += 1
+
+    if rows:
+        execute_many(
+            db_path,
+            """
+            INSERT INTO product_images (product_id, image_path, sort_order, created_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            rows,
+        )
 
     flash("Ürün eklendi.", "success")
     return redirect(url_for("admin.products_list"))
@@ -232,7 +299,18 @@ def products_edit(product_id: int):
         flash("Ürün bulunamadı.", "danger")
         return redirect(url_for("admin.products_list"))
 
-    return render_template("admin/product_form.html", product=product, roast_types=ROAST_TYPES)
+    images = fetch_all(
+        db_path,
+        "SELECT * FROM product_images WHERE product_id=? ORDER BY sort_order ASC, id ASC",
+        (product_id,),
+    )
+
+    return render_template(
+        "admin/product_form.html",
+        product=product,
+        roast_types=ROAST_TYPES,
+        images=images,
+    )
 
 
 @admin_bp.post("/products/<int:product_id>/edit")
@@ -248,11 +326,24 @@ def products_edit_post(product_id: int):
     description = (request.form.get("description") or "").strip()
     roast_type = (request.form.get("roast_type") or "").strip()
 
+    origin = (request.form.get("origin") or "").strip() or None
+    process = (request.form.get("process") or "").strip() or None
+    tasting_notes = (request.form.get("tasting_notes") or "").strip() or None
+    espresso_compatible = 1 if (request.form.get("espresso_compatible") in ("1", "on", "true")) else 0
+
     def _f(key: str) -> float:
         return float((request.form.get(key) or "0").replace(",", "."))
 
     def _i(key: str) -> int:
         return int(request.form.get(key) or "0")
+
+    def _r(key: str) -> int:
+        v = int(request.form.get(key) or "3")
+        if v < 1:
+            v = 1
+        if v > 5:
+            v = 5
+        return v
 
     if len(name) < 2:
         flash("Ürün adı zorunludur.", "danger")
@@ -267,6 +358,10 @@ def products_edit_post(product_id: int):
         price_500 = _f("price_500")
         price_1000 = _f("price_1000")
         stock_gram = _i("stock_gram")
+        altitude = _i("altitude") if (request.form.get("altitude") or "").strip() else None
+        acidity = _r("acidity")
+        body = _r("body")
+        sweetness = _r("sweetness")
     except ValueError:
         flash("Fiyat/stock alanları geçersiz.", "danger")
         return redirect(url_for("admin.products_edit", product_id=product_id))
@@ -294,14 +389,116 @@ def products_edit_post(product_id: int):
         db_path,
         """
         UPDATE products
-        SET name=?, description=?, roast_type=?, price_250=?, price_500=?, price_1000=?, stock_gram=?, image_path=?
+        SET
+            name=?, description=?, roast_type=?,
+            price_250=?, price_500=?, price_1000=?,
+            stock_gram=?, image_path=?,
+            origin=?, process=?, altitude=?, tasting_notes=?,
+            acidity=?, body=?, sweetness=?,
+            espresso_compatible=?
         WHERE id=?
         """,
-        (name, description, roast_type, price_250, price_500, price_1000, stock_gram, image_path, product_id),
+        (
+            name,
+            description,
+            roast_type,
+            price_250,
+            price_500,
+            price_1000,
+            stock_gram,
+            image_path,
+            origin,
+            process,
+            altitude,
+            tasting_notes,
+            acidity,
+            body,
+            sweetness,
+            espresso_compatible,
+            product_id,
+        ),
     )
+
+    old_stock = int(product["stock_gram"]) if product["stock_gram"] is not None else 0
+    diff = int(stock_gram) - old_stock
+    if diff != 0:
+        execute(
+            db_path,
+            """
+            INSERT INTO stock_movements (product_id, change_gram, reason, ref_type, ref_id, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (product_id, diff, "Admin stok güncelleme", "admin", None, now_str()),
+        )
+
+    gallery_files = request.files.getlist("gallery_files")
+    rows = []
+    sort_order = 0
+    if gallery_files:
+        last = fetch_one(
+            db_path,
+            "SELECT COALESCE(MAX(sort_order), -1) AS m FROM product_images WHERE product_id=?",
+            (product_id,),
+        )
+        sort_order = int(last["m"]) + 1
+
+    for f in gallery_files:
+        if not f or not f.filename:
+            continue
+        original = secure_filename(f.filename)
+        filename = f"{uuid.uuid4().hex}_{original}" if original else f"{uuid.uuid4().hex}.jpg"
+        save_dir = os.path.join(current_app.static_folder, "images")
+        os.makedirs(save_dir, exist_ok=True)
+        f.save(os.path.join(save_dir, filename))
+        rows.append((product_id, f"images/{filename}", sort_order, now_str()))
+        sort_order += 1
+
+    if rows:
+        execute_many(
+            db_path,
+            """
+            INSERT INTO product_images (product_id, image_path, sort_order, created_at)
+            VALUES (?, ?, ?, ?)
+            """,
+            rows,
+        )
 
     flash("Ürün güncellendi.", "success")
     return redirect(url_for("admin.products_list"))
+
+
+@admin_bp.post("/products/<int:product_id>/images/<int:image_id>/delete")
+@admin_required
+def product_image_delete(product_id: int, image_id: int):
+    db_path = current_app.config["DB_PATH"]
+    execute(db_path, "DELETE FROM product_images WHERE id=? AND product_id=?", (image_id, product_id))
+    flash("Görsel kaldırıldı.", "success")
+    return redirect(url_for("admin.products_edit", product_id=product_id))
+
+
+@admin_bp.get("/stock-movements")
+@admin_required
+def stock_movements():
+    db_path = current_app.config["DB_PATH"]
+    movements = fetch_all(
+        db_path,
+        """
+        SELECT
+            sm.id,
+            sm.product_id,
+            p.name AS product_name,
+            sm.change_gram,
+            sm.reason,
+            sm.ref_type,
+            sm.ref_id,
+            sm.created_at
+        FROM stock_movements sm
+        JOIN products p ON p.id = sm.product_id
+        ORDER BY sm.created_at DESC, sm.id DESC
+        LIMIT 200
+        """,
+    )
+    return render_template("admin/stock_movements.html", movements=movements)
 
 
 @admin_bp.post("/products/<int:product_id>/delete")
@@ -404,6 +601,45 @@ def orders_detail(order_id: int):
         items=items,
         total=total,
         statuses=ORDER_STATUSES,
+    )
+
+
+@admin_bp.get("/orders/<int:order_id>/print")
+@admin_required
+def orders_print(order_id: int):
+    db_path = current_app.config["DB_PATH"]
+
+    order = fetch_one(db_path, "SELECT * FROM orders WHERE id=?", (order_id,))
+    if not order:
+        flash("Sipariş bulunamadı.", "danger")
+        return redirect(url_for("admin.orders_list"))
+
+    items = fetch_all(
+        db_path,
+        """
+        SELECT
+            oi.product_id,
+            p.name AS product_name,
+            oi.grind_type,
+            oi.gram,
+            COUNT(*) AS qty,
+            oi.price AS unit_price,
+            (COUNT(*) * oi.price) AS subtotal
+        FROM order_items oi
+        JOIN products p ON p.id = oi.product_id
+        WHERE oi.order_id=?
+        GROUP BY oi.product_id, p.name, oi.grind_type, oi.gram, oi.price
+        ORDER BY p.name ASC
+        """,
+        (order_id,),
+    )
+    total = sum(float(i["subtotal"]) for i in items)
+
+    return render_template(
+        "admin/order_print.html",
+        order=order,
+        items=items,
+        total=total,
     )
 
 
