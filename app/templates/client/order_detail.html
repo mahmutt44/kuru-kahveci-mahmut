@@ -1,0 +1,83 @@
+{% extends 'client/base.html' %}
+
+{% block title %}Sipariş #{{ order.id }} - Kuru Kahveci Mahmut{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-end justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-1">Sipariş #{{ order.id }}</h1>
+      <div class="text-muted">{{ order.created_at }}</div>
+    </div>
+    <div>
+      <a class="btn btn-outline-dark" href="{{ url_for('client.orders', phone=phone) }}">Geri</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted mb-2">Durum</div>
+          {% if order.status == 'alındı' %}
+            <span class="badge text-bg-secondary fs-6">{{ order.status }}</span>
+          {% elif order.status == 'hazırlanıyor' %}
+            <span class="badge text-bg-warning fs-6">{{ order.status }}</span>
+          {% elif order.status == 'hazır' %}
+            <span class="badge text-bg-primary fs-6">{{ order.status }}</span>
+          {% elif order.status == 'teslim edildi' %}
+            <span class="badge text-bg-success fs-6">{{ order.status }}</span>
+          {% else %}
+            <span class="badge text-bg-info fs-6">{{ order.status }}</span>
+          {% endif %}
+
+          <hr>
+          <div class="text-muted">İsim</div>
+          <div class="fw-semibold">{{ order.customer_name }}</div>
+          <div class="text-muted mt-2">Telefon</div>
+          <div class="fw-semibold">{{ order.customer_phone }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Ürünler</h2>
+
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead>
+                <tr>
+                  <th>Ürün</th>
+                  <th>Seçim</th>
+                  <th class="text-end">Birim</th>
+                  <th class="text-end">Adet</th>
+                  <th class="text-end">Ara Toplam</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for it in items %}
+                  <tr>
+                    <td class="fw-semibold">{{ it.product_name }}</td>
+                    <td class="text-muted">{{ it.gram }}g / {{ it.grind_type }}</td>
+                    <td class="text-end">{{ '%.2f'|format(it.unit_price) }}₺</td>
+                    <td class="text-end">{{ it.qty }}</td>
+                    <td class="text-end">{{ '%.2f'|format(it.subtotal) }}₺</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <div class="text-end">
+              <div class="text-muted">Toplam</div>
+              <div class="fs-4 fw-semibold">{{ '%.2f'|format(total) }}₺</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends 'client/base.html' %}
+
+{% block title %}Hakkımızda - Kuru Kahveci Mahmut{% endblock %}
+
+{% block content %}
+  <div class="row g-4">
+    <div class="col-12 col-lg-7">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h1 class="h3 mb-2">Hakkımızda</h1>
+          <div class="text-muted mb-3">Mahalle kahvecinizden taze kavrulmuş kahveler.</div>
+
+          <p>
+            Kuru Kahveci Mahmut olarak amacımız; günlük kavrulan çekirdekleri doğru öğütüm ve gramaj seçenekleriyle
+            hızlı ve düzenli şekilde hazırlamak.
+          </p>
+          <p class="mb-0">
+            Siparişinizi oluşturduktan sonra <strong>Siparişlerim</strong> bölümünden telefon numaranızla
+            durumunu takip edebilirsiniz.
+          </p>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mt-3">
+        <div class="card-body p-4">
+          <h2 class="h5">Neden biz?</h2>
+          <div class="row g-3 mt-1">
+            <div class="col-12 col-md-4">
+              <div class="p-3 border rounded bg-light h-100">
+                <div class="fw-semibold">Taze Kavrum</div>
+                <div class="text-muted small">Günlük kavrum takibi</div>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="p-3 border rounded bg-light h-100">
+                <div class="fw-semibold">Doğru Öğütüm</div>
+                <div class="text-muted small">Türk / Filtre / Espresso</div>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="p-3 border rounded bg-light h-100">
+                <div class="fw-semibold">Düzenli Hazırlık</div>
+                <div class="text-muted small">Net sipariş akışı</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-5">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h2 class="h5">İletişim</h2>
+          <div class="text-muted">Sipariş ve destek</div>
+          <hr>
+          <div class="d-flex justify-content-between">
+            <div class="text-muted">Telefon</div>
+            <div class="fw-semibold">0 (5xx) xxx xx xx</div>
+          </div>
+          <div class="d-flex justify-content-between mt-2">
+            <div class="text-muted">Adres</div>
+            <div class="fw-semibold text-end">İstanbul / Türkiye</div>
+          </div>
+          <div class="d-flex justify-content-between mt-2">
+            <div class="text-muted">Çalışma</div>
+            <div class="fw-semibold">09:00 - 21:00</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card shadow-sm mt-3">
+        <div class="card-body p-4">
+          <h2 class="h5">Hızlı Linkler</h2>
+          <div class="d-grid gap-2">
+            <a class="btn btn-dark" href="{{ url_for('client.home') }}">Ürünler</a>
+            <a class="btn btn-outline-dark" href="{{ url_for('client.orders') }}">Siparişlerim</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% extends 'client/base.html' %}
+
+{% block title %}Ürünler - Kuru Kahveci Mahmut{% endblock %}
+
+{% block content %}
+  <div class="hero card shadow-sm border-0 mb-4">
+    <div class="card-body p-4 p-lg-5">
+      <div class="row g-3 align-items-center">
+        <div class="col-12 col-lg-8">
+          <h1 class="display-6 fw-semibold mb-2">Kuru Kahveci Mahmut</h1>
+          <div class="text-muted fs-5">Taze kavrum, doğru öğütüm ve hızlı hazırlık. Gramajını ve öğütme türünü seç, siparişini oluştur.</div>
+          <div class="d-flex gap-2 mt-3">
+            <a class="btn btn-dark" href="#urunler">Ürünlere Göz At</a>
+            <a class="btn btn-outline-dark" href="{{ url_for('client.about') }}">Hakkımızda</a>
+          </div>
+        </div>
+        <div class="col-12 col-lg-4 text-lg-end">
+          <div class="hero-badge d-inline-flex align-items-center gap-2">
+            <span class="badge rounded-pill text-bg-dark">Günlük kavrum</span>
+            <span class="badge rounded-pill text-bg-secondary">Özel harman</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex align-items-end justify-content-between mb-3" id="urunler">
+    <div>
+      <h2 class="h4 mb-1">Taze Kahveler</h2>
+      <div class="text-muted">Kavrum seçeneği, gramaj ve öğütme tercihiyle sipariş verin.</div>
+    </div>
+  </div>
+
+  {% if not products %}
+    <div class="alert alert-warning">Henüz ürün yok.</div>
+  {% else %}
+    <div class="row g-3">
+      {% for p in products %}
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="card product-card h-100 shadow-sm">
+            {% if p.image_path %}
+              <img src="{{ url_for('static', filename=p.image_path) }}" class="card-img-top" alt="{{ p.name }}">
+            {% else %}
+              <div class="placeholder-img d-flex align-items-center justify-content-center">
+                <div class="text-muted">Görsel yok</div>
+              </div>
+            {% endif %}
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start">
+                <h5 class="card-title mb-1">{{ p.name }}</h5>
+                <span class="badge text-bg-secondary">{{ p.roast_type }}</span>
+              </div>
+              <p class="card-text text-muted mb-3">{{ p.description }}</p>
+              <div class="d-flex justify-content-between align-items-center">
+                <div class="fw-semibold">250g: {{ '%.2f'|format(p.price_250) }}₺</div>
+              </div>
+              <div class="d-flex gap-2 mt-3">
+                <button
+                  type="button"
+                  class="btn btn-dark w-100"
+                  data-bs-toggle="modal"
+                  data-bs-target="#orderModal"
+                  data-product-id="{{ p.id }}"
+                  data-product-name="{{ p.name }}"
+                  data-product-roast="{{ p.roast_type }}"
+                  data-product-stock="{{ p.stock_gram }}"
+                >
+                  Sipariş Ver
+                </button>
+                <a class="btn btn-outline-dark w-100" href="{{ url_for('client.product_detail', product_id=p.id) }}">Detay</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="modal fade" id="orderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <div class="modal-title h5 mb-0" id="orderModalTitle">Sipariş Ver</div>
+            <div class="text-muted small" id="orderModalSubtitle"></div>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+        </div>
+        <form method="post" action="{{ url_for('client.cart_add') }}">
+          <div class="modal-body">
+            <input type="hidden" name="product_id" id="orderProductId" value="">
+
+            <div class="row g-3">
+              <div class="col-12 col-md-4">
+                <label class="form-label">Gramaj</label>
+                <select class="form-select" name="gram" required>
+                  {% for g in gram_options %}
+                    <option value="{{ g }}">{{ g }}g</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-12 col-md-5">
+                <label class="form-label">Öğütme</label>
+                <select class="form-select" name="grind_type" required>
+                  {% for gt in grind_options %}
+                    <option value="{{ gt }}">{{ gt }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label">Adet</label>
+                <input class="form-control" type="number" name="qty" value="1" min="1" max="20" required>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-dark" data-bs-dismiss="modal">Vazgeç</button>
+            <button type="submit" class="btn btn-dark">Sepete Ekle</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var modalEl = document.getElementById('orderModal');
+      if (!modalEl) return;
+
+      var titleEl = document.getElementById('orderModalTitle');
+      var subtitleEl = document.getElementById('orderModalSubtitle');
+      var productIdEl = document.getElementById('orderProductId');
+
+      modalEl.addEventListener('show.bs.modal', function (event) {
+        var button = event.relatedTarget;
+        if (!button) return;
+        var pid = button.getAttribute('data-product-id') || '';
+        var name = button.getAttribute('data-product-name') || 'Sipariş Ver';
+        var roast = button.getAttribute('data-product-roast') || '';
+        var stock = button.getAttribute('data-product-stock') || '';
+
+        if (titleEl) titleEl.textContent = name;
+        if (subtitleEl) subtitleEl.textContent = (roast ? (roast + ' kavrum') : '') + (stock ? (' • Stok: ' + stock + 'g') : '');
+        if (productIdEl) productIdEl.value = pid;
+      });
+
+      var params = new URLSearchParams(window.location.search);
+      var orderId = params.get('order');
+      if (orderId) {
+        var selector = '[data-bs-target="#orderModal"][data-product-id="' + orderId + '"]';
+        var btn = document.querySelector(selector);
+        if (btn) {
+          // relatedTarget doğru gelsin diye butonu tetikle.
+          setTimeout(function () { btn.click(); }, 50);
+        }
+      }
+    })();
+  </script>
+{% endblock %}

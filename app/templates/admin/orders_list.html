@@ -1,0 +1,81 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Siparişler - Admin{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-end justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-1">Siparişler</h1>
+      <div class="text-muted">Gelen siparişleri görüntüleyin ve durum güncelleyin</div>
+    </div>
+  </div>
+
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <form method="get" action="{{ url_for('admin.orders_list') }}" class="row g-2 align-items-end">
+        <div class="col-12 col-md-6 col-lg-4">
+          <label class="form-label">Durum</label>
+          <select class="form-select" name="status">
+            <option value="">Tümü</option>
+            {% for s in statuses %}
+              <option value="{{ s }}" {% if selected_status == s %}selected{% endif %}>{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-md-6 col-lg-3 d-flex gap-2">
+          <button class="btn btn-outline-light w-100" type="submit">Filtrele</button>
+          <a class="btn btn-outline-secondary w-100" href="{{ url_for('admin.orders_list') }}">Sıfırla</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-body">
+      {% if not orders %}
+        <div class="alert alert-secondary">Henüz sipariş yok.</div>
+      {% else %}
+        <div class="table-responsive">
+          <table class="table table-dark table-hover align-middle">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Müşteri</th>
+                <th>Telefon</th>
+                <th>Durum</th>
+                <th>Tarih</th>
+                <th class="text-end">Toplam</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for o in orders %}
+                <tr>
+                  <td class="fw-semibold">{{ o.id }}</td>
+                  <td>{{ o.customer_name }}</td>
+                  <td class="text-muted">{{ o.customer_phone }}</td>
+                  <td>
+                    {% if o.status == 'alındı' %}
+                      <span class="badge text-bg-secondary">{{ o.status }}</span>
+                    {% elif o.status == 'hazırlanıyor' %}
+                      <span class="badge text-bg-warning">{{ o.status }}</span>
+                    {% elif o.status == 'hazır' %}
+                      <span class="badge text-bg-primary">{{ o.status }}</span>
+                    {% elif o.status == 'teslim edildi' %}
+                      <span class="badge text-bg-success">{{ o.status }}</span>
+                    {% else %}
+                      <span class="badge text-bg-info">{{ o.status }}</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-muted">{{ o.created_at }}</td>
+                  <td class="text-end">{{ '%.2f'|format(o.total) }}₺</td>
+                  <td class="text-end"><a class="btn btn-sm btn-outline-light" href="{{ url_for('admin.orders_detail', order_id=o.id) }}">Detay</a></td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

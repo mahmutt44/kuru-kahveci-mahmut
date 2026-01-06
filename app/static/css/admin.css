@@ -1,0 +1,11 @@
+body {
+  font-feature-settings: "ss01";
+}
+
+.card {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.table {
+  margin-bottom: 0;
+}

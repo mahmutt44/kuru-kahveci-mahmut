@@ -1,0 +1,91 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}Sipariş #{{ order.id }} - Admin{% endblock %}
+
+{% block content %}
+  <div class="d-flex align-items-end justify-content-between mb-3">
+    <div>
+      <h1 class="h3 mb-1">Sipariş #{{ order.id }}</h1>
+      <div class="text-muted">{{ order.customer_name }} / {{ order.customer_phone }} - {{ order.created_at }}</div>
+    </div>
+    <div>
+      <a class="btn btn-outline-light" href="{{ url_for('admin.orders_list') }}">Geri</a>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted mb-2">Durum</div>
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            {% if order.status == 'alındı' %}
+              <span class="badge text-bg-secondary fs-6">{{ order.status }}</span>
+            {% elif order.status == 'hazırlanıyor' %}
+              <span class="badge text-bg-warning fs-6">{{ order.status }}</span>
+            {% elif order.status == 'hazır' %}
+              <span class="badge text-bg-primary fs-6">{{ order.status }}</span>
+            {% elif order.status == 'teslim edildi' %}
+              <span class="badge text-bg-success fs-6">{{ order.status }}</span>
+            {% else %}
+              <span class="badge text-bg-info fs-6">{{ order.status }}</span>
+            {% endif %}
+          </div>
+
+          <form method="post" action="{{ url_for('admin.orders_update_status', order_id=order.id) }}" class="vstack gap-2">
+            <select class="form-select" name="status" required>
+              {% for s in statuses %}
+                <option value="{{ s }}" {% if order.status == s %}selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+            <button class="btn btn-light" type="submit">Durumu Güncelle</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Ürünler</h2>
+
+          {% if not items %}
+            <div class="alert alert-secondary">Sipariş içeriği bulunamadı.</div>
+          {% else %}
+            <div class="table-responsive">
+              <table class="table table-dark align-middle">
+                <thead>
+                  <tr>
+                    <th>Ürün</th>
+                    <th>Seçim</th>
+                    <th class="text-end">Birim</th>
+                    <th class="text-end">Adet</th>
+                    <th class="text-end">Ara Toplam</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for it in items %}
+                    <tr>
+                      <td class="fw-semibold">{{ it.product_name }}</td>
+                      <td class="text-muted">{{ it.gram }}g / {{ it.grind_type }}</td>
+                      <td class="text-end">{{ '%.2f'|format(it.unit_price) }}₺</td>
+                      <td class="text-end">{{ it.qty }}</td>
+                      <td class="text-end">{{ '%.2f'|format(it.subtotal) }}₺</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <div class="text-end">
+                <div class="text-muted">Toplam</div>
+                <div class="fs-4 fw-semibold">{{ '%.2f'|format(total) }}₺</div>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

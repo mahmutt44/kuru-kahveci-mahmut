@@ -1,0 +1,88 @@
+{% extends 'client/base.html' %}
+
+{% block title %}{{ product.name }} - Kuru Kahveci Mahmut{% endblock %}
+
+{% block content %}
+  <div class="row g-4">
+    <div class="col-12 col-lg-5">
+      <div class="card shadow-sm">
+        {% if product.image_path %}
+          <img src="{{ url_for('static', filename=product.image_path) }}" class="card-img-top" alt="{{ product.name }}">
+        {% else %}
+          <div class="placeholder-img d-flex align-items-center justify-content-center">
+            <div class="text-muted">Görsel yok</div>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-12 col-lg-7">
+      <div class="d-flex align-items-start justify-content-between">
+        <div>
+          <h1 class="h3 mb-1">{{ product.name }}</h1>
+          <div class="text-muted">{{ product.description }}</div>
+        </div>
+        <span class="badge text-bg-secondary fs-6">{{ product.roast_type }}</span>
+      </div>
+
+      <div class="card mt-3 shadow-sm">
+        <div class="card-body">
+          <div class="row g-2 mb-3">
+            <div class="col-12 col-md-4"><div class="p-2 border rounded bg-light">250g: <strong>{{ '%.2f'|format(product.price_250) }}₺</strong></div></div>
+            <div class="col-12 col-md-4"><div class="p-2 border rounded bg-light">500g: <strong>{{ '%.2f'|format(product.price_500) }}₺</strong></div></div>
+            <div class="col-12 col-md-4"><div class="p-2 border rounded bg-light">1000g: <strong>{{ '%.2f'|format(product.price_1000) }}₺</strong></div></div>
+          </div>
+
+          <div class="text-muted mb-3">Stok: {{ product.stock_gram }}g</div>
+
+          <div class="d-flex gap-2">
+            <a class="btn btn-dark" href="{{ url_for('client.home') }}?order={{ product.id }}#urunler">Sipariş Ver</a>
+            <a class="btn btn-outline-dark" href="{{ url_for('client.home') }}#urunler">Ürünlere Dön</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mt-3 shadow-sm">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Kahve Hakkında</h2>
+
+          <div class="row g-3">
+            <div class="col-12 col-md-6">
+              <div class="p-3 border rounded bg-light h-100">
+                <div class="fw-semibold">Kavrum Profili</div>
+                <div class="text-muted">{{ product.roast_type }} kavrum</div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="p-3 border rounded bg-light h-100">
+                <div class="fw-semibold">Önerilen Demleme</div>
+                {% if product.roast_type == 'Açık' %}
+                  <div class="text-muted">V60 / Chemex / Aeropress</div>
+                {% elif product.roast_type == 'Orta' %}
+                  <div class="text-muted">Filtre / V60 / Moka Pot</div>
+                {% else %}
+                  <div class="text-muted">Espresso / Moka Pot / Sütlü içecekler</div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="p-3 border rounded bg-light h-100">
+                <div class="fw-semibold">Öğütüm Tavsiyesi</div>
+                <div class="text-muted">Türk: çok ince • Filtre: orta • Espresso: ince • Çekirdek: öğütülmez</div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="p-3 border rounded bg-light h-100">
+                <div class="fw-semibold">Saklama</div>
+                <div class="text-muted">Serin-kuru yerde, hava almayan kapta. Güneşten uzak.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-3 text-muted">
+            <strong>Tadım Notu:</strong> {{ product.description }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
