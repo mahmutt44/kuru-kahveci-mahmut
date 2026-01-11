@@ -1,0 +1,16 @@
+name: Keep Alive
+
+on:
+  schedule:
+    # Her 15 dakikada bir çalış
+    - cron: '*/15 * * * *'
+  workflow_dispatch: # Manuel tetikleme
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Ping website
+      run: |
+        curl -f https://kuru-kahveci-mahmut.onrender.com
