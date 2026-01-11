@@ -29,18 +29,17 @@
             <form method="post" action="{{ url_for('admin.login_post') }}" class="vstack gap-3">
               <div>
                 <label class="form-label">Kullanıcı adı</label>
-                <input class="form-control" name="username" required placeholder="admin">
+                <input class="form-control" name="username" required>
               </div>
               <div>
                 <label class="form-label">Şifre</label>
-                <input class="form-control" type="password" name="password" required placeholder="admin123">
+                <input class="form-control" type="password" name="password" required>
               </div>
               <button class="btn btn-light" type="submit">Giriş</button>
               <a class="btn btn-outline-secondary" href="{{ url_for('client.home') }}">Siteye dön</a>
             </form>
           </div>
         </div>
-        <div class="text-center text-secondary small mt-3">Varsayılan: admin / admin123</div>
       </div>
     </div>
   </div>
