@@ -8,7 +8,7 @@ from app.routes.client import client_bp
 
 
 def create_app():
-    app = Flask(__name__, template_folder="app/templates", static_folder="app/static")
+    app = Flask(__name__, template_folder="templates", static_folder="static")
 
     # Güvenlik: gerçek projede bunu environment değişkeni ile yönetmek gerekir.
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key-change-me")
