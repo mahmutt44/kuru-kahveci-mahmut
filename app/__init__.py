@@ -20,6 +20,14 @@ def create_app():
         db_path = "/opt/render/project/data/kahveci.db"
         # Data klasörünü oluştur
         os.makedirs("/opt/render/project/data", exist_ok=True)
+        
+        # Upload'ları static folder'a symlink et
+        data_images = "/opt/render/project/data/images"
+        static_images = os.path.join(os.path.dirname(__file__), "static", "images")
+        
+        if os.path.exists(data_images) and not os.path.exists(static_images):
+            os.symlink(data_images, static_images, target_is_directory=True)
+        
     app.config["DB_PATH"] = get_db_path(db_path)
 
     # İlk açılışta tabloları oluştur.
@@ -40,6 +48,9 @@ def create_app():
                     cart_count += int(it.get("qty", 1))
                 except Exception:
                     cart_count += 1
-        return {"cart_count": cart_count}
+        
+        # Cache-busting için timestamp
+        import time
+        return {"cart_count": cart_count, "cache_bust": int(time.time())}
 
     return app
