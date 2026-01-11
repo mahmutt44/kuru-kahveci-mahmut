@@ -20,6 +20,19 @@ from werkzeug.utils import secure_filename
 from database import execute, execute_many, fetch_all, fetch_one, now_str
 
 
+def get_upload_dir():
+    """Render disk veya local static folder döner"""
+    static_folder = current_app.static_folder
+    if os.path.exists("/opt/render/project"):
+        # Render environment - upload'ları da diske kaydet
+        upload_dir = "/opt/render/project/data/images"
+        os.makedirs(upload_dir, exist_ok=True)
+        return upload_dir
+    else:
+        # Local development
+        return os.path.join(static_folder, "images")
+
+
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
@@ -223,7 +236,7 @@ def products_new_post():
     file = request.files.get("image_file")
     if file and file.filename:
         filename = secure_filename(file.filename)
-        save_dir = os.path.join(current_app.static_folder, "images")
+        save_dir = get_upload_dir()
         os.makedirs(save_dir, exist_ok=True)
         file_path = os.path.join(save_dir, filename)
         file.save(file_path)
@@ -270,7 +283,7 @@ def products_new_post():
             continue
         original = secure_filename(f.filename)
         filename = f"{uuid.uuid4().hex}_{original}" if original else f"{uuid.uuid4().hex}.jpg"
-        save_dir = os.path.join(current_app.static_folder, "images")
+        save_dir = get_upload_dir()
         os.makedirs(save_dir, exist_ok=True)
         f.save(os.path.join(save_dir, filename))
         rows.append((product_id, f"images/{filename}", sort_order, now_str()))
@@ -379,7 +392,7 @@ def products_edit_post(product_id: int):
     file = request.files.get("image_file")
     if file and file.filename:
         filename = secure_filename(file.filename)
-        save_dir = os.path.join(current_app.static_folder, "images")
+        save_dir = get_upload_dir()
         os.makedirs(save_dir, exist_ok=True)
         file_path = os.path.join(save_dir, filename)
         file.save(file_path)
@@ -447,7 +460,7 @@ def products_edit_post(product_id: int):
             continue
         original = secure_filename(f.filename)
         filename = f"{uuid.uuid4().hex}_{original}" if original else f"{uuid.uuid4().hex}.jpg"
-        save_dir = os.path.join(current_app.static_folder, "images")
+        save_dir = get_upload_dir()
         os.makedirs(save_dir, exist_ok=True)
         f.save(os.path.join(save_dir, filename))
         rows.append((product_id, f"images/{filename}", sort_order, now_str()))

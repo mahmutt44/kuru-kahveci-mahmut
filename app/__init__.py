@@ -13,8 +13,14 @@ def create_app():
     # Güvenlik: gerçek projede bunu environment değişkeni ile yönetmek gerekir.
     app.secret_key = os.environ.get("FLASK_SECRET_KEY", "dev-secret-key-change-me")
 
-    # DB konumu
-    app.config["DB_PATH"] = get_db_path(os.environ.get("DB_PATH"))
+    # DB konumu - Render disk kullan
+    db_path = os.environ.get("DB_PATH", "kahveci.db")
+    if os.path.exists("/opt/render/project"):
+        # Render environment
+        db_path = "/opt/render/project/data/kahveci.db"
+        # Data klasörünü oluştur
+        os.makedirs("/opt/render/project/data", exist_ok=True)
+    app.config["DB_PATH"] = get_db_path(db_path)
 
     # İlk açılışta tabloları oluştur.
     init_db(app.config["DB_PATH"])
