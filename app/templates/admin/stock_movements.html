@@ -57,7 +57,7 @@
                     {% endif %}
                   </td>
                   <td class="text-muted">{{ m.reason }}</td>
-                  <td class="text-muted">{{ m.created_at }}</td>
+                  <td class="text-muted">{{ m.created_at | datetime_tr }}</td>
                 </tr>
               {% endfor %}
             </tbody>

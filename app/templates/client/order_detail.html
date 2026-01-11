@@ -6,7 +6,7 @@
   <div class="d-flex align-items-end justify-content-between mb-3">
     <div>
       <h1 class="h3 mb-1">Sipariş #{{ order.id }}</h1>
-      <div class="text-muted">{{ order.created_at }}</div>
+      <div class="text-muted">{{ order.created_at | datetime_tr }}</div>
     </div>
     <div>
       <a class="btn btn-outline-dark" href="{{ url_for('client.orders', phone=phone) }}">Geri</a>

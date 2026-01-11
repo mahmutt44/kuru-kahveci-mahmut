@@ -1,15 +1,17 @@
 import os
 import sqlite3
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
 
 
 DEFAULT_DB_PATH = os.path.join(os.path.dirname(__file__), "kahveci.db")
 
 
 def _utc_now_str() -> str:
-    # SQLite tarafında okunabilir ve filtrelenebilir bir format.
-    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Türkiye saatine göre (UTC+3)
+    now_utc = datetime.now(timezone.utc)
+    now_tr = now_utc + timedelta(hours=3)
+    return now_tr.strftime("%Y-%m-%d %H:%M:%S")
 
 
 def get_db_path(app_db_path: str | None = None) -> str:

@@ -67,7 +67,7 @@
                       <span class="badge text-bg-info">{{ o.status }}</span>
                     {% endif %}
                   </td>
-                  <td class="text-muted">{{ o.created_at }}</td>
+                  <td class="text-muted">{{ o.created_at | datetime_tr }}</td>
                   <td class="text-end">{{ '%.2f'|format(o.total) }}₺</td>
                   <td class="text-end"><a class="btn btn-sm btn-outline-light" href="{{ url_for('admin.orders_detail', order_id=o.id) }}">Detay</a></td>
                 </tr>

@@ -129,7 +129,7 @@
   <body>
     <div class="sheet">
       <h1 class="title">Kuru Kahveci Mahmut</h1>
-      <p class="sub">Sipariş #{{ order.id }} • {{ order.created_at }}</p>
+      <p class="sub">Sipariş #{{ order.id }} • {{ order.created_at | datetime_tr }}</p>
 
       <div class="block">
         <div class="row">
