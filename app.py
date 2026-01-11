@@ -41,10 +41,9 @@ def create_app():
 
 app = create_app()
 
+# For gunicorn/deployment
+application = app
 
 if __name__ == "__main__":
     # Windows'ta debug=True ile otomatik reload bazen problem çıkarabiliyor; ihtiyaç halinde açabilirsiniz.
     app.run(host="127.0.0.1", port=5000, debug=True)
-
-# For gunicorn/deployment
-application = app
