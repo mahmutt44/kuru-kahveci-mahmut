@@ -21,16 +21,9 @@ from database import execute, execute_many, fetch_all, fetch_one, now_str
 
 
 def get_upload_dir():
-    """Render disk veya local static folder döner"""
+    """Static folder döner"""
     static_folder = current_app.static_folder
-    if os.path.exists("/opt/render/project"):
-        # Render environment - upload'ları da diske kaydet
-        upload_dir = "/opt/render/project/data/images"
-        os.makedirs(upload_dir, exist_ok=True)
-        return upload_dir
-    else:
-        # Local development
-        return os.path.join(static_folder, "images")
+    return os.path.join(static_folder, "images")
 
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
