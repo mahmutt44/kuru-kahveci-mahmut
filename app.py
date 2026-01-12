@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from flask import session
+from datetime import datetime
 
 from database import get_db_path, init_db
 from app.routes.admin import admin_bp
@@ -22,6 +23,24 @@ def create_app():
     # Blueprint kayıtları
     app.register_blueprint(client_bp)
     app.register_blueprint(admin_bp)
+
+    @app.template_filter('datetime_tr')
+    def datetime_tr_filter(date_str):
+        """Tarih string'ini Türkiye formatında göster"""
+        if not date_str:
+            return ""
+        
+        try:
+            # Veritabanından gelen string'i parse et
+            if isinstance(date_str, str):
+                dt = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+            else:
+                dt = date_str
+            
+            # Türkiye formatında göster
+            return dt.strftime("%d.%m.%Y %H:%M")
+        except:
+            return str(date_str)
 
     @app.context_processor
     def inject_globals():
