@@ -62,7 +62,7 @@ def _product_price_by_gram(product_row, gram: int) -> float | None:
     return None
 
 
-@client_bp.get("/")
+@client_bp.route("/")
 def home():
     db_path = current_app.config["DB_PATH"]
     q = (request.args.get("q") or "").strip()
@@ -156,7 +156,7 @@ def home():
     )
 
 
-@client_bp.get("/product/<int:product_id>")
+@client_bp.route("/product/<int:product_id>")
 def product_detail(product_id: int):
     db_path = current_app.config["DB_PATH"]
     product = fetch_one(db_path, "SELECT * FROM products WHERE id=?", (product_id,))
@@ -189,7 +189,7 @@ def product_detail(product_id: int):
     )
 
 
-@client_bp.post("/cart/add")
+@client_bp.route("/cart/add", methods=["POST"])
 def cart_add():
     db_path = current_app.config["DB_PATH"]
 
@@ -256,7 +256,7 @@ def cart_add():
     return redirect(url_for("client.cart"))
 
 
-@client_bp.post("/cart/qty")
+@client_bp.route("/cart/qty", methods=["POST"])
 def cart_qty():
     cart = _get_cart()
     try:
@@ -285,7 +285,7 @@ def cart_qty():
     return redirect(url_for("client.cart"))
 
 
-@client_bp.post("/cart/set")
+@client_bp.route("/cart/set", methods=["POST"])
 def cart_set():
     cart = _get_cart()
     try:
@@ -308,7 +308,7 @@ def cart_set():
     return redirect(url_for("client.cart"))
 
 
-@client_bp.get("/cart")
+@client_bp.route("/cart")
 def cart():
     cart = _get_cart()
     total = 0.0
@@ -318,7 +318,7 @@ def cart():
     return render_template("client/cart.html", cart=cart, total=total)
 
 
-@client_bp.post("/cart/remove")
+@client_bp.route("/cart/remove", methods=["POST"])
 def cart_remove():
     cart = _get_cart()
     try:
@@ -336,7 +336,7 @@ def cart_remove():
     return redirect(url_for("client.cart"))
 
 
-@client_bp.get("/checkout")
+@client_bp.route("/checkout")
 def checkout():
     cart = _get_cart()
     if not cart:
@@ -355,7 +355,7 @@ def checkout():
     )
 
 
-@client_bp.post("/checkout")
+@client_bp.route("/checkout", methods=["POST"])
 def checkout_submit():
     db_path = current_app.config["DB_PATH"]
     cart = _get_cart()
@@ -496,7 +496,7 @@ def checkout_submit():
     return render_template("client/order_success.html", order_id=order_id)
 
 
-@client_bp.get("/orders")
+@client_bp.route("/orders")
 def orders():
     db_path = current_app.config["DB_PATH"]
 
@@ -531,7 +531,7 @@ def orders():
     )
 
 
-@client_bp.get("/orders/<int:order_id>")
+@client_bp.route("/orders/<int:order_id>")
 def order_detail(order_id: int):
     db_path = current_app.config["DB_PATH"]
 
@@ -582,6 +582,6 @@ def order_detail(order_id: int):
     )
 
 
-@client_bp.get("/about")
+@client_bp.route("/about")
 def about():
     return render_template("client/about.html")

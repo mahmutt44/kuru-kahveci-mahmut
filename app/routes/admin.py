@@ -57,7 +57,7 @@ def admin_required(view_func):
     return wrapper
 
 
-@admin_bp.get("/")
+@admin_bp.route("/")
 @admin_required
 def dashboard():
     db_path = current_app.config["DB_PATH"]
@@ -91,14 +91,14 @@ def dashboard():
     )
 
 
-@admin_bp.get("/login")
+@admin_bp.route("/login")
 def login():
     if session.get("admin_logged_in"):
         return redirect(url_for("admin.dashboard"))
     return render_template("admin/login.html")
 
 
-@admin_bp.post("/login")
+@admin_bp.route("/login", methods=["POST"])
 def login_post():
     username = (request.form.get("username") or "").strip()
     password = request.form.get("password") or ""
@@ -112,7 +112,7 @@ def login_post():
     return redirect(url_for("admin.dashboard"))
 
 
-@admin_bp.post("/logout")
+@admin_bp.route("/logout", methods=["POST"])
 @admin_required
 def logout():
     session.pop("admin_logged_in", None)
@@ -120,7 +120,7 @@ def logout():
     return redirect(url_for("admin.login"))
 
 
-@admin_bp.get("/products")
+@admin_bp.route("/products")
 @admin_required
 def products_list():
     db_path = current_app.config["DB_PATH"]
@@ -159,13 +159,13 @@ def products_list():
     )
 
 
-@admin_bp.get("/products/new")
+@admin_bp.route("/products/new")
 @admin_required
 def products_new():
     return render_template("admin/product_form.html", product=None, roast_types=ROAST_TYPES)
 
 
-@admin_bp.post("/products/new")
+@admin_bp.route("/products/new")
 @admin_required
 def products_new_post():
     db_path = current_app.config["DB_PATH"]
@@ -296,7 +296,7 @@ def products_new_post():
     return redirect(url_for("admin.products_list"))
 
 
-@admin_bp.get("/products/<int:product_id>/edit")
+@admin_bp.route("/products/<int:product_id>/edit")
 @admin_required
 def products_edit(product_id: int):
     db_path = current_app.config["DB_PATH"]
@@ -319,7 +319,7 @@ def products_edit(product_id: int):
     )
 
 
-@admin_bp.post("/products/<int:product_id>/edit")
+@admin_bp.route("/products/<int:product_id>/edit")
 @admin_required
 def products_edit_post(product_id: int):
     db_path = current_app.config["DB_PATH"]
@@ -473,7 +473,7 @@ def products_edit_post(product_id: int):
     return redirect(url_for("admin.products_list"))
 
 
-@admin_bp.post("/products/<int:product_id>/images/<int:image_id>/delete")
+@admin_bp.route("/products/<int:product_id>/images/<int:image_id>/delete")
 @admin_required
 def product_image_delete(product_id: int, image_id: int):
     db_path = current_app.config["DB_PATH"]
@@ -482,7 +482,7 @@ def product_image_delete(product_id: int, image_id: int):
     return redirect(url_for("admin.products_edit", product_id=product_id))
 
 
-@admin_bp.get("/stock-movements")
+@admin_bp.route("/stock-movements")
 @admin_required
 def stock_movements():
     db_path = current_app.config["DB_PATH"]
@@ -507,7 +507,7 @@ def stock_movements():
     return render_template("admin/stock_movements.html", movements=movements)
 
 
-@admin_bp.post("/products/<int:product_id>/delete")
+@admin_bp.route("/products/<int:product_id>/delete")
 @admin_required
 def products_delete(product_id: int):
     db_path = current_app.config["DB_PATH"]
@@ -522,7 +522,7 @@ def products_delete(product_id: int):
     return redirect(url_for("admin.products_list"))
 
 
-@admin_bp.post("/products/<int:product_id>/toggle")
+@admin_bp.route("/products/<int:product_id>/toggle")
 @admin_required
 def products_toggle(product_id: int):
     db_path = current_app.config["DB_PATH"]
@@ -537,7 +537,7 @@ def products_toggle(product_id: int):
     return redirect(url_for("admin.products_list"))
 
 
-@admin_bp.get("/orders")
+@admin_bp.route("/orders")
 @admin_required
 def orders_list():
     db_path = current_app.config["DB_PATH"]
@@ -569,7 +569,7 @@ def orders_list():
     )
 
 
-@admin_bp.get("/orders/<int:order_id>")
+@admin_bp.route("/orders/<int:order_id>")
 @admin_required
 def orders_detail(order_id: int):
     db_path = current_app.config["DB_PATH"]
@@ -610,7 +610,7 @@ def orders_detail(order_id: int):
     )
 
 
-@admin_bp.get("/orders/<int:order_id>/print")
+@admin_bp.route("/orders/<int:order_id>/print")
 @admin_required
 def orders_print(order_id: int):
     db_path = current_app.config["DB_PATH"]
@@ -649,7 +649,7 @@ def orders_print(order_id: int):
     )
 
 
-@admin_bp.post("/orders/<int:order_id>/status")
+@admin_bp.route("/orders/<int:order_id>/status")
 @admin_required
 def orders_update_status(order_id: int):
     db_path = current_app.config["DB_PATH"]
