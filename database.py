@@ -77,6 +77,9 @@ def init_db(db_path: str):
             cur.execute("ALTER TABLE products ADD COLUMN sweetness INTEGER NOT NULL DEFAULT 3;")
         if "espresso_compatible" not in product_cols:
             cur.execute("ALTER TABLE products ADD COLUMN espresso_compatible INTEGER NOT NULL DEFAULT 0;")
+        if "updated_at" not in product_cols:
+            cur.execute("ALTER TABLE products ADD COLUMN updated_at TEXT;")
+            cur.execute("UPDATE products SET updated_at = CURRENT_TIMESTAMP WHERE updated_at IS NULL;")
 
         cur.execute(
             """
