@@ -10,10 +10,6 @@ Flask tabanlı kahve dükkanı e-ticaret platformu.
 - Dark/Light theme desteği
 - Admin paneli (ürün yönetimi, sipariş takibi)
 
-## Canlı Demo
-
-[https://kuru-kahveci-mahmut.onrender.com](https://kuru-kahveci-mahmut.onrender.com)
-
 ## Kurulum
 
 ### Gereksinimler
@@ -49,7 +45,6 @@ Site: http://127.0.0.1:5000
 - **Backend:** Flask, SQLite
 - **Frontend:** Bootstrap 5, JavaScript
 - **Icons:** Lucide Icons
-- **Deployment:** Render
 
 ## Proje Yapısı
 
@@ -67,7 +62,6 @@ Site: http://127.0.0.1:5000
 │       └── images/          # Ürün görselleri
 ├── database.py              # Veritabanı işlemleri
 ├── app.py                   # Ana uygulama dosyası
-├── wsgi.py                  # Deployment için WSGI
 └── requirements.txt         # Python bağımlılıkları
 ```
 
