@@ -296,7 +296,7 @@ def products_new_post():
     return redirect(url_for("admin.products_list"))
 
 
-@admin_bp.route("/products/<int:product_id>/edit")
+@admin_bp.route("/products/<int:product_id>/edit", methods=["GET", "POST"])
 @admin_required
 def products_edit(product_id: int):
     db_path = current_app.config["DB_PATH"]
@@ -305,6 +305,111 @@ def products_edit(product_id: int):
         flash("Ürün bulunamadı.", "danger")
         return redirect(url_for("admin.products_list"))
 
+    if request.method == "POST":
+        # POST işlemi - formu işle
+        name = (request.form.get("name") or "").strip()
+        description = (request.form.get("description") or "").strip()
+        roast_type = (request.form.get("roast_type") or "").strip()
+
+        origin = (request.form.get("origin") or "").strip() or None
+        process = (request.form.get("process") or "").strip() or None
+        tasting_notes = (request.form.get("tasting_notes") or "").strip() or None
+        espresso_compatible = 1 if (request.form.get("espresso_compatible") in ("1", "on", "true")) else 0
+
+        def _f(key: str) -> float:
+            return float((request.form.get(key) or "0").replace(",", "."))
+
+        def _i(key: str) -> int:
+            return int(request.form.get(key) or "0")
+
+        def _r(key: str) -> int:
+            v = int(request.form.get(key) or "3")
+            if v < 1:
+                v = 1
+            if v > 5:
+                v = 5
+            return v
+
+        if len(name) < 2:
+            flash("Ürün adı zorunludur.", "danger")
+            return redirect(url_for("admin.products_edit", product_id=product_id))
+
+        if roast_type not in ROAST_TYPES:
+            flash("Kavrum türü seçiniz.", "danger")
+            return redirect(url_for("admin.products_edit", product_id=product_id))
+
+        try:
+            price_250 = _f("price_250")
+            price_500 = _f("price_500")
+            price_1000 = _f("price_1000")
+            stock_gram = _i("stock_gram")
+            sweetness = _r("sweetness")
+        except ValueError:
+            flash("Fiyat/stock alanları geçersiz.", "danger")
+            return redirect(url_for("admin.products_edit", product_id=product_id))
+
+        if min(price_250, price_500, price_1000) <= 0:
+            flash("Fiyatlar 0'dan büyük olmalıdır.", "danger")
+            return redirect(url_for("admin.products_edit", product_id=product_id))
+
+        if stock_gram < 0:
+            flash("Stok negatif olamaz.", "danger")
+            return redirect(url_for("admin.products_edit", product_id=product_id))
+
+        image_path = (request.form.get("image_path") or "").strip() or None
+
+        # Ürünü güncelle
+        execute(
+            db_path,
+            """
+            UPDATE products SET name=?, description=?, roast_type=?, price_250=?, price_500=?, price_1000=?,
+            stock_gram=?, origin=?, process=?, tasting_notes=?, sweetness=?, espresso_compatible=?, image_path=?,
+            updated_at=CURRENT_TIMESTAMP
+            WHERE id=?
+            """,
+            (
+                name,
+                description,
+                roast_type,
+                price_250,
+                price_500,
+                price_1000,
+                stock_gram,
+                origin,
+                process,
+                tasting_notes,
+                sweetness,
+                espresso_compatible,
+                image_path,
+                product_id,
+            ),
+        )
+
+        # Görselleri işle
+        images = request.files.getlist("images")
+        if images:
+            rows = []
+            for i, image in enumerate(images):
+                if image and image.filename:
+                    filename = secure_filename(image.filename)
+                    image_path = f"images/{filename}"
+                    image.save(os.path.join(current_app.static_folder, image_path))
+                    rows.append((product_id, image_path, i + 1, now_str()))
+
+            if rows:
+                execute_many(
+                    db_path,
+                    """
+                    INSERT INTO product_images (product_id, image_path, sort_order, created_at)
+                    VALUES (?, ?, ?, ?)
+                    """,
+                    rows,
+                )
+
+        flash("Ürün güncellendi.", "success")
+        return redirect(url_for("admin.products_list"))
+
+    # GET işlemi - formu göster
     images = fetch_all(
         db_path,
         "SELECT * FROM product_images WHERE product_id=? ORDER BY sort_order ASC, id ASC",
@@ -317,160 +422,6 @@ def products_edit(product_id: int):
         roast_types=ROAST_TYPES,
         images=images,
     )
-
-
-@admin_bp.route("/products/<int:product_id>/edit")
-@admin_required
-def products_edit_post(product_id: int):
-    db_path = current_app.config["DB_PATH"]
-    product = fetch_one(db_path, "SELECT * FROM products WHERE id=?", (product_id,))
-    if not product:
-        flash("Ürün bulunamadı.", "danger")
-        return redirect(url_for("admin.products_list"))
-
-    name = (request.form.get("name") or "").strip()
-    description = (request.form.get("description") or "").strip()
-    roast_type = (request.form.get("roast_type") or "").strip()
-
-    origin = (request.form.get("origin") or "").strip() or None
-    process = (request.form.get("process") or "").strip() or None
-    tasting_notes = (request.form.get("tasting_notes") or "").strip() or None
-    espresso_compatible = 1 if (request.form.get("espresso_compatible") in ("1", "on", "true")) else 0
-
-    def _f(key: str) -> float:
-        return float((request.form.get(key) or "0").replace(",", "."))
-
-    def _i(key: str) -> int:
-        return int(request.form.get(key) or "0")
-
-    def _r(key: str) -> int:
-        v = int(request.form.get(key) or "3")
-        if v < 1:
-            v = 1
-        if v > 5:
-            v = 5
-        return v
-
-    if len(name) < 2:
-        flash("Ürün adı zorunludur.", "danger")
-        return redirect(url_for("admin.products_edit", product_id=product_id))
-
-    if roast_type not in ROAST_TYPES:
-        flash("Kavrum türü seçiniz.", "danger")
-        return redirect(url_for("admin.products_edit", product_id=product_id))
-
-    try:
-        price_250 = _f("price_250")
-        price_500 = _f("price_500")
-        price_1000 = _f("price_1000")
-        stock_gram = _i("stock_gram")
-        altitude = _i("altitude") if (request.form.get("altitude") or "").strip() else None
-        acidity = _r("acidity")
-        body = _r("body")
-        sweetness = _r("sweetness")
-    except ValueError:
-        flash("Fiyat/stock alanları geçersiz.", "danger")
-        return redirect(url_for("admin.products_edit", product_id=product_id))
-
-    if min(price_250, price_500, price_1000) <= 0:
-        flash("Fiyatlar 0'dan büyük olmalıdır.", "danger")
-        return redirect(url_for("admin.products_edit", product_id=product_id))
-
-    if stock_gram < 0:
-        flash("Stok negatif olamaz.", "danger")
-        return redirect(url_for("admin.products_edit", product_id=product_id))
-
-    image_path = (request.form.get("image_path") or "").strip() or None
-
-    file = request.files.get("image_file")
-    if file and file.filename:
-        filename = secure_filename(file.filename)
-        save_dir = get_upload_dir()
-        os.makedirs(save_dir, exist_ok=True)
-        file_path = os.path.join(save_dir, filename)
-        file.save(file_path)
-        image_path = f"images/{filename}"
-
-    execute(
-        db_path,
-        """
-        UPDATE products
-        SET
-            name=?, description=?, roast_type=?,
-            price_250=?, price_500=?, price_1000=?,
-            stock_gram=?, image_path=?,
-            origin=?, process=?, altitude=?, tasting_notes=?,
-            acidity=?, body=?, sweetness=?,
-            espresso_compatible=?
-        WHERE id=?
-        """,
-        (
-            name,
-            description,
-            roast_type,
-            price_250,
-            price_500,
-            price_1000,
-            stock_gram,
-            image_path,
-            origin,
-            process,
-            altitude,
-            tasting_notes,
-            acidity,
-            body,
-            sweetness,
-            espresso_compatible,
-            product_id,
-        ),
-    )
-
-    old_stock = int(product["stock_gram"]) if product["stock_gram"] is not None else 0
-    diff = int(stock_gram) - old_stock
-    if diff != 0:
-        execute(
-            db_path,
-            """
-            INSERT INTO stock_movements (product_id, change_gram, reason, ref_type, ref_id, created_at)
-            VALUES (?, ?, ?, ?, ?, ?)
-            """,
-            (product_id, diff, "Admin stok güncelleme", "admin", None, now_str()),
-        )
-
-    gallery_files = request.files.getlist("gallery_files")
-    rows = []
-    sort_order = 0
-    if gallery_files:
-        last = fetch_one(
-            db_path,
-            "SELECT COALESCE(MAX(sort_order), -1) AS m FROM product_images WHERE product_id=?",
-            (product_id,),
-        )
-        sort_order = int(last["m"]) + 1
-
-    for f in gallery_files:
-        if not f or not f.filename:
-            continue
-        original = secure_filename(f.filename)
-        filename = f"{uuid.uuid4().hex}_{original}" if original else f"{uuid.uuid4().hex}.jpg"
-        save_dir = get_upload_dir()
-        os.makedirs(save_dir, exist_ok=True)
-        f.save(os.path.join(save_dir, filename))
-        rows.append((product_id, f"images/{filename}", sort_order, now_str()))
-        sort_order += 1
-
-    if rows:
-        execute_many(
-            db_path,
-            """
-            INSERT INTO product_images (product_id, image_path, sort_order, created_at)
-            VALUES (?, ?, ?, ?)
-            """,
-            rows,
-        )
-
-    flash("Ürün güncellendi.", "success")
-    return redirect(url_for("admin.products_list"))
 
 
 @admin_bp.route("/products/<int:product_id>/images/<int:image_id>/delete")
