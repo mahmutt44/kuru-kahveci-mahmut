@@ -9,8 +9,6 @@ Flask tabanlı kahve dükkanı e-ticaret platformu.
 - Responsive tasarım (mobil uyumlu)
 - Dark/Light theme desteği
 - Admin paneli (ürün yönetimi, sipariş takibi)
-- Stok takibi ve hareketleri
-- Modern UI (Bootstrap 5 + Lucide icons)
 
 ## Canlı Demo
 
