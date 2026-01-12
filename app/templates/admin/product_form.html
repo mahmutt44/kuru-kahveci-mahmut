@@ -22,9 +22,9 @@
   <div class="card shadow-sm">
     <div class="card-body">
       {% if product %}
-        <form method="post" action="{{ url_for('admin.products_edit_post', product_id=product.id) }}" enctype="multipart/form-data" class="row g-3">
+        <form method="post" action="{{ url_for('admin.products_edit', product_id=product.id) }}" enctype="multipart/form-data" class="row g-3">
       {% else %}
-        <form method="post" action="{{ url_for('admin.products_new_post') }}" enctype="multipart/form-data" class="row g-3">
+        <form method="post" action="{{ url_for('admin.products_new') }}" enctype="multipart/form-data" class="row g-3">
       {% endif %}
 
         <div class="col-12">
