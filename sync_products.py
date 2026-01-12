@@ -1,6 +1,5 @@
 import os
 import sqlite3
-import requests
 from database import get_db_path
 
 def sync_from_render():
@@ -28,21 +27,155 @@ def create_sample_products():
         cursor.execute("DELETE FROM products")
         cursor.execute("DELETE FROM product_images")
         
-        # İstenen ürünler
+        # İstenen ürünler - tam şemaya göre
         products = [
-            ("Guatemala Antigua", "Dumanlı, baharatlı ve çikolata notaları", "Orta", 340.0, 650.0, 1200.0, 25, "images/Guatemala_Antigua_Orta.png", "Guatemala", "Yıkanmış", 1),
-            ("Kenya AA", "Asidik, vişne ve karabiber notaları", "Açık", 380.0, 720.0, 1300.0, 20, "images/Kenya_AA_Ack.png", "Kenya", "Yıkanmış", 0),
-            ("Costa Rica Tarrazu", "Çikolata, narenciye ve karamel notaları", "Orta", 360.0, 680.0, 1250.0, 22, "images/Kolombiya_Supremo_Orta.png", "Kosta Rika", "Yıkanmış", 1),
-            ("Espresso Harmanı", "Espresso için özel harman, kremsi ve tatlı", "Koyu", 280.0, 520.0, 950.0, 40, "images/Brezilya_Santos_Koyu.png", "Harman", "Natur", 1),
-            ("Filtre Harmanı", "Filtre kahve için dengeli harman", "Orta", 260.0, 480.0, 880.0, 35, "images/Etiyopya_Yirgacheffe_Ack.png", "Harman", "Yıkanmış", 0),
-            ("Brezilya Santos", "Yoğun gövde, fındık ve çikolata", "Koyu", 250.0, 480.0, 900.0, 45, "images/Brezilya_Santos_Koyu.png", "Brezilya", "Natur", 1),
-            ("Etiyopya Yirgacheffe", "Meyvemsi, çiçeksi aromalar", "Orta", 280.0, 540.0, 1000.0, 30, "images/Etiyopya_Yirgacheffe_Ack.png", "Etiyopya", "Yıkanmış", 0),
-            ("Kolombiya Supremo", "Karamel ve kuru meyve", "Orta", 320.0, 600.0, 1100.0, 28, "images/Kolombiya_Supremo_Orta.png", "Kolombiya", "Yıkanmış", 1),
+            (
+                "Guatemala Antigua", 
+                "Dumanlı, baharatlı ve çikolata notaları", 
+                "Orta", 
+                340.0, 650.0, 1200.0,  # price_250, price_500, price_1000
+                25, # stock_gram
+                "images/Guatemala_Antigua_Orta.png", # image_path
+                1, # is_active
+                "Guatemala", # origin
+                "Yıkanmış", # process
+                1500, # altitude
+                "Dumanlı, baharatlı, çikolata, vanilya", # tasting_notes
+                3, # acidity
+                3, # body
+                3, # sweetness
+                1, # espresso_compatible
+            ),
+            (
+                "Kenya AA", 
+                "Asidik, vişne ve karabiber notaları", 
+                "Açık", 
+                380.0, 720.0, 1300.0,
+                20,
+                "images/Kenya_AA_Ack.png",
+                1,
+                "Kenya",
+                "Yıkanmış",
+                1800,
+                "Vişne, kiraz, ahududu, greyfurt",
+                4,
+                2,
+                2,
+                0,
+            ),
+            (
+                "Costa Rica Tarrazu", 
+                "Çikolata, narenciye ve karamel notaları", 
+                "Orta", 
+                360.0, 680.0, 1250.0,
+                22,
+                "images/Costa_Rica_Tarrazu_Orta.png",
+                1,
+                "Kosta Rika",
+                "Yıkanmış",
+                1400,
+                "Çikolata, narenciye, karamel, badem",
+                3,
+                3,
+                3,
+                1,
+            ),
+            (
+                "Espresso Harmanı", 
+                "Espresso için özel harman, kremsi ve tatlı", 
+                "Koyu", 
+                280.0, 520.0, 950.0,
+                40,
+                "images/Espresso_Harmanı_Koyu.png",
+                1,
+                "Harman",
+                "Natur",
+                None,
+                "Kremsi, tatlı, karamel, fındık",
+                3,
+                4,
+                3,
+                1,
+            ),
+            (
+                "Filtre Harmanı", 
+                "Filtre kahve için dengeli harman", 
+                "Orta", 
+                260.0, 480.0, 880.0,
+                35,
+                "images/Filtre_Harmanı_Orta.png",
+                1,
+                "Harman",
+                "Yıkanmış",
+                None,
+                "Meyvemsi, çiçeksi, narenciye",
+                4,
+                3,
+                2,
+                0,
+            ),
+            (
+                "Brezilya Santos", 
+                "Yoğun gövde, fındık ve çikolata", 
+                "Koyu", 
+                250.0, 480.0, 900.0,
+                45,
+                "images/Brezilya_Santos_Koyu.png",
+                1,
+                "Brezilya",
+                "Natur",
+                900,
+                "Fındık, çikolata, karamel, vanilya",
+                2,
+                4,
+                3,
+                1,
+            ),
+            (
+                "Etiyopya Yirgacheffe", 
+                "Meyvemsi, çiçeksi aromalar", 
+                "Orta", 
+                280.0, 540.0, 1000.0,
+                30,
+                "images/Etiyopya_Yirgacheffe_Ack.png",
+                1,
+                "Etiyopya",
+                "Yıkanmış",
+                1800,
+                "Meyve, çiçek, narenciye, limon",
+                5,
+                2,
+                2,
+                0,
+            ),
+            (
+                "Kolombiya Supremo", 
+                "Karamel ve kuru meyve", 
+                "Orta", 
+                320.0, 600.0, 1100.0,
+                28,
+                "images/Kolombiya_Supremo_Orta.png",
+                1,
+                "Kolombiya",
+                "Yıkanmış",
+                1700,
+                "Karamel, kurutulmuş meyve, ceviz",
+                3,
+                3,
+                3,
+                1,
+            ),
         ]
         
         cursor.executemany("""
-            INSERT INTO products (name, description, roast_type, price_250, price_500, price_1000, stock_gram, image_path, origin, process, espresso_compatible)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO products (
+                name, description, roast_type, 
+                price_250, price_500, price_1000, stock_gram, 
+                image_path, is_active, origin, process, altitude, 
+                tasting_notes, acidity, body, sweetness, 
+                espresso_compatible
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, products)
         
         conn.commit()
