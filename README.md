@@ -25,8 +25,8 @@ cd kuru-kahveci-mahmut
 # Kurulum
 pip install -r requirements.txt
 
-# Veritabanını başlat
-python sync_products.py
+# Veritabanını başlat (otomatik olarak ilk çalıştırmada oluşturulur)
+# python app.py
 
 # Çalıştır
 python app.py
@@ -62,7 +62,10 @@ Site: http://127.0.0.1:5000
 │       └── images/          # Ürün görselleri
 ├── database.py              # Veritabanı işlemleri
 ├── app.py                   # Ana uygulama dosyası
-└── requirements.txt         # Python bağımlılıkları
+├── seed_database.py         # Başlangıç verileri
+├── sync_products.py         # Ürün senkronizasyon
+├── requirements.txt         # Python bağımlılıkları
+└── README.md               # Proje dokümantasyonu
 ```
 
 ## UI Özellikler
@@ -83,12 +86,14 @@ Site: http://127.0.0.1:5000
 
 ## Demo Ürünler
 
-- Brezilya Santos Koyu
-- Etiyopya Yirgacheffe  
 - Kolombiya Supremo
+- Etiyopya Yirgacheffe
+- Brezilya Santos
 - Guatemala Antigua
 - Kenya AA
-- Sumatra Mandheling
+- Costa Rica Tarrazu
+- Espresso Harmanı
+- Filtre Harmanı
 
 ---
 
