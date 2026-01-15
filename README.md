@@ -9,6 +9,9 @@ Flask tabanlı kahve dükkanı e-ticaret platformu.
 - Responsive tasarım (mobil uyumlu)
 - Dark/Light theme desteği
 - Admin paneli (ürün yönetimi, sipariş takibi)
+- Stok yönetimi (kg bazında)
+- Cloudinary görsel hosting
+- Sipariş durum takibi
 
 ## Kurulum
 
@@ -42,6 +45,8 @@ Site: http://127.0.0.1:5000
 - **Backend:** Flask, SQLite
 - **Frontend:** Bootstrap 5, JavaScript
 - **Icons:** Lucide Icons
+- **Image Hosting:** Cloudinary
+- **Deployment:** Render (Free tier)
 
 ## Proje Yapısı
 
@@ -83,14 +88,22 @@ Site: http://127.0.0.1:5000
 
 ## Demo Ürünler
 
-- Kolombiya Supremo
-- Etiyopya Yirgacheffe
-- Brezilya Santos
-- Guatemala Antigua
-- Kenya AA
-- Costa Rica Tarrazu
-- Espresso Harmanı
-- Filtre Harmanı
+- Kolombiya Supremo (Orta kavrum)
+- Etiyopya Yirgacheffe (Açık kavrum)
+- Brezilya Santos (Koyu kavrum)
+- Guatemala Antigua (Orta kavrum)
+- Kenya AA (Açık kavrum)
+- Costa Rica Tarrazu (Orta kavrum)
+- Espresso Harmanı (Koyu kavrum)
+- Filtre Harmanı (Orta kavrum)
+
+## Canlı Demo
+
+🌐 **Site:** [Kuru Kahveci Mahmut](https://kuru-kahveci-mahmut.onrender.com)
+
+## Lisans
+
+MIT License
 
 ---
 
