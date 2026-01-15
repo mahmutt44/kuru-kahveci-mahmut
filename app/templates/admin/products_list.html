@@ -60,7 +60,7 @@
                 <th class="text-end">250g</th>
                 <th class="text-end">500g</th>
                 <th class="text-end">1000g</th>
-                <th class="text-end">Stok(g)</th>
+                <th class="text-end">Stok(kg)</th>
                 <th>Durum</th>
                 <th></th>
               </tr>
@@ -74,7 +74,7 @@
                   <td class="text-end">{{ '%.2f'|format(p.price_250) }}₺</td>
                   <td class="text-end">{{ '%.2f'|format(p.price_500) }}₺</td>
                   <td class="text-end">{{ '%.2f'|format(p.price_1000) }}₺</td>
-                  <td class="text-end">{{ p.stock_gram }}</td>
+                  <td class="text-end">{{ "%.1f"|format(p.stock_gram / 1000) }} kg</td>
                   <td>
                     {% if p.is_active == 1 %}
                       <span class="badge text-bg-success">Aktif</span>

@@ -184,7 +184,9 @@ def products_new_post():
         return float((request.form.get(key) or "0").replace(",", "."))
 
     def _i(key: str) -> int:
-        return int(request.form.get(key) or "0")
+        # KG cinsinden gelen değeri grama çevir
+        kg_val = float(request.form.get(key) or "0")
+        return int(kg_val * 1000)  # 1 kg = 1000 gram
 
     def _r(key: str) -> int:
         v = int(request.form.get(key) or "3")
@@ -320,7 +322,9 @@ def products_edit(product_id: int):
             return float((request.form.get(key) or "0").replace(",", "."))
 
         def _i(key: str) -> int:
-            return int(request.form.get(key) or "0")
+            # KG cinsinden gelen değeri grama çevir
+            kg_val = float(request.form.get(key) or "0")
+            return int(kg_val * 1000)  # 1 kg = 1000 gram
 
         def _r(key: str) -> int:
             v = int(request.form.get(key) or "3")
@@ -600,7 +604,7 @@ def orders_print(order_id: int):
     )
 
 
-@admin_bp.route("/orders/<int:order_id>/status")
+@admin_bp.route("/orders/<int:order_id>/status", methods=["POST"])
 @admin_required
 def orders_update_status(order_id: int):
     db_path = current_app.config["DB_PATH"]
