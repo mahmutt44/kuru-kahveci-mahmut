@@ -200,7 +200,7 @@ def init_db(db_path: str):
                         410.0,
                         780.0,
                         10000,  # 10 kg
-                        "images/Kolombiya Supremo Orta.png",
+                        "/static/images/Kolombiya Supremo Orta.png",
                     ),
                     (
                         "Etiyopya Yirgacheffe",
@@ -210,7 +210,7 @@ def init_db(db_path: str):
                         470.0,
                         890.0,
                         10000,  # 10 kg
-                        "images/Etiyopya Yirgacheffe Açık.png",
+                        "/static/images/Etiyopya Yirgacheffe Açık.png",
                     ),
                     (
                         "Brezilya Santos",
@@ -220,7 +220,7 @@ def init_db(db_path: str):
                         395.0,
                         750.0,
                         10000,  # 10 kg
-                        "images/Brezilya Santos Koyu.png",
+                        "/static/images/Brezilya Santos Koyu.png",
                     ),
                     (
                         "Guatemala Antigua",
@@ -230,7 +230,7 @@ def init_db(db_path: str):
                         440.0,
                         840.0,
                         10000,  # 10 kg
-                        "images/Guatemala Antigua Orta.png",
+                        "/static/images/Guatemala Antigua Orta.png",
                     ),
                     (
                         "Kenya AA",
@@ -240,7 +240,7 @@ def init_db(db_path: str):
                         495.0,
                         945.0,
                         10000,  # 10 kg
-                        "images/Kenya AA Açık.png",
+                        "/static/images/Kenya AA Açık.png",
                     ),
                     (
                         "Costa Rica Tarrazu",
@@ -250,7 +250,7 @@ def init_db(db_path: str):
                         465.0,
                         895.0,
                         10000,  # 10 kg
-                        "images/Costa Rica Tarrazu Orta.png",
+                        "/static/images/Costa Rica Tarrazu Orta.png",
                     ),
                     (
                         "Espresso Harmanı",
@@ -260,7 +260,7 @@ def init_db(db_path: str):
                         430.0,
                         820.0,
                         10000,  # 10 kg
-                        "images/Espresso Harmanı Koyu.png",
+                        "/static/images/Espresso Harmanı Koyu.png",
                     ),
                     (
                         "Filtre Harmanı",
@@ -270,7 +270,7 @@ def init_db(db_path: str):
                         405.0,
                         770.0,
                         10000,  # 10 kg
-                        "images/Filtre Harmanı Orta.png",
+                        "/static/images/Filtre Harmanı Orta.png",
                     ),
                 ],
             )
