@@ -25,9 +25,6 @@ cd kuru-kahveci-mahmut
 # Kurulum
 pip install -r requirements.txt
 
-# Veritabanını başlat (otomatik olarak ilk çalıştırmada oluşturulur)
-# python app.py
-
 # Çalıştır
 python app.py
 ```
