@@ -65,4 +65,6 @@ application = app
 
 if __name__ == "__main__":
     # Windows'ta debug=True ile otomatik reload bazen problem çıkarabiliyor; ihtiyaç halinde açabilirsiniz.
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    # Render için host=0.0.0.0 gerekli
+    host = "0.0.0.0" if os.environ.get("RENDER") else "127.0.0.1"
+    app.run(host=host, port=5000, debug=True)
