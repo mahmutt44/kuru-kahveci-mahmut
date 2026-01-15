@@ -154,7 +154,7 @@
                 {% endif %}
               </div>
               {% if product and product.image_path %}
-                <img id="image_preview" src="{{ url_for('static', filename=product.image_path) }}" class="img-fluid rounded" alt="Görsel">
+                <img id="image_preview" src="{{ product.image_path }}" class="img-fluid rounded" alt="Görsel">
               {% else %}
                 <img id="image_preview" src="" class="img-fluid rounded d-none" alt="Görsel">
                 <div id="image_preview_empty" class="text-muted">Dosya seçtiğinizde burada önizleme göreceksiniz.</div>

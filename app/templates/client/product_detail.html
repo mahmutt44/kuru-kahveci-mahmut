@@ -11,7 +11,7 @@
             <div class="carousel-inner">
               {% for img in images %}
                 <div class="carousel-item {% if loop.first %}active{% endif %}">
-                  <img src="{{ url_for('static', filename=img.image_path) }}" class="d-block w-100" alt="{{ product.name }}">
+                  <img src="{{ img.image_path }}" class="d-block w-100" alt="{{ product.name }}">
                 </div>
               {% endfor %}
             </div>
@@ -27,7 +27,7 @@
             {% endif %}
           </div>
         {% elif product.image_path %}
-          <img src="{{ url_for('static', filename=product.image_path) }}" class="card-img-top" alt="{{ product.name }}">
+          <img src="{{ product.image_path }}" class="card-img-top" alt="{{ product.name }}">
         {% else %}
           <div class="placeholder-img d-flex align-items-center justify-content-center">
             <div class="text-muted">Görsel yok</div>

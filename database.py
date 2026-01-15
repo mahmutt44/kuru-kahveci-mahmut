@@ -200,7 +200,7 @@ def init_db(db_path: str):
                         410.0,
                         780.0,
                         10000,  # 10 kg
-                        "images/Kolombiya Supremo Orta.png",
+                        "https://res.cloudinary.com/doduufpwn/image/upload/kahve/f7zzfyfphqbkc02u8ikr",
                     ),
                     (
                         "Etiyopya Yirgacheffe",
@@ -210,7 +210,7 @@ def init_db(db_path: str):
                         470.0,
                         890.0,
                         10000,  # 10 kg
-                        "images/Etiyopya Yirgacheffe Açık.png",
+                        "https://res.cloudinary.com/doduufpwn/image/upload/kahve/fy5s9rhdwrijm3wnzxpr",
                     ),
                     (
                         "Brezilya Santos",
@@ -220,7 +220,7 @@ def init_db(db_path: str):
                         395.0,
                         750.0,
                         10000,  # 10 kg
-                        "images/Brezilya Santos Koyu.png",
+                        "https://res.cloudinary.com/doduufpwn/image/upload/kahve/nz5z5tiwedvcxz9fcjrv",
                     ),
                     (
                         "Guatemala Antigua",
@@ -230,7 +230,7 @@ def init_db(db_path: str):
                         440.0,
                         840.0,
                         10000,  # 10 kg
-                        "images/Guatemala Antigua Orta.png",
+                        "https://res.cloudinary.com/doduufpwn/image/upload/kahve/i5vxuwqxpeansc4mjag6",
                     ),
                     (
                         "Kenya AA",
@@ -240,7 +240,7 @@ def init_db(db_path: str):
                         495.0,
                         945.0,
                         10000,  # 10 kg
-                        "images/Kenya AA Açık.png",
+                        "https://res.cloudinary.com/doduufpwn/image/upload/kahve/icx6z4pf1z1subck6wn3",
                     ),
                     (
                         "Costa Rica Tarrazu",
@@ -250,7 +250,7 @@ def init_db(db_path: str):
                         465.0,
                         895.0,
                         10000,  # 10 kg
-                        "images/Costa Rica Tarrazu Orta.png",
+                        "https://res.cloudinary.com/doduufpwn/image/upload/kahve/yr9wetjfpypjg7pjgy5q",
                     ),
                     (
                         "Espresso Harmanı",
@@ -260,7 +260,7 @@ def init_db(db_path: str):
                         430.0,
                         820.0,
                         10000,  # 10 kg
-                        "images/Espresso Harmanı Koyu.png",
+                        "https://res.cloudinary.com/doduufpwn/image/upload/kahve/zh9aqxetn75eyccwwytr",
                     ),
                     (
                         "Filtre Harmanı",
@@ -270,7 +270,7 @@ def init_db(db_path: str):
                         405.0,
                         770.0,
                         10000,  # 10 kg
-                        "images/Filtre Harmanı Orta.png",
+                        "https://res.cloudinary.com/doduufpwn/image/upload/kahve/bmpdmvkeryapy5i2nvzw",
                     ),
                 ],
             )

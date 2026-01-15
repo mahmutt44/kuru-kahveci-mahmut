@@ -45,7 +45,7 @@
                   <div class="col-6">
                     <div class="card h-100">
                       {% if p.image_path %}
-                        <img src="{{ url_for('static', filename=p.image_path) }}" class="card-img-top" alt="{{ p.name }}">
+                        <img src="{{ p.image_path }}" class="card-img-top" alt="{{ p.name }}">
                       {% else %}
                         <div class="placeholder-img d-flex align-items-center justify-content-center">
                           <div class="text-muted">Görsel yok</div>
@@ -105,7 +105,7 @@
                   <div class="col-6">
                     <div class="card h-100">
                       {% if p.image_path %}
-                        <img src="{{ url_for('static', filename=p.image_path) }}" class="card-img-top" alt="{{ p.name }}">
+                        <img src="{{ p.image_path }}" class="card-img-top" alt="{{ p.name }}">
                       {% else %}
                         <div class="placeholder-img d-flex align-items-center justify-content-center">
                           <div class="text-muted">Görsel yok</div>
@@ -273,7 +273,7 @@
         <div class="col-12 col-sm-6 col-lg-4">
           <div class="card product-card h-100 shadow-sm">
             {% if p.image_path %}
-              <img src="{{ url_for('static', filename=p.image_path) }}" class="card-img-top" alt="{{ p.name }}">
+              <img src="{{ p.image_path }}" class="card-img-top" alt="{{ p.name }}">
             {% else %}
               <div class="placeholder-img d-flex align-items-center justify-content-center">
                 <div class="text-muted">Görsel yok</div>
