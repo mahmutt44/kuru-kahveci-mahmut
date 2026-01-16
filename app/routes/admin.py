@@ -58,7 +58,6 @@ def admin_required(view_func):
 
 
 @admin_bp.route("/")
-@admin_required
 def dashboard():
     db_path = current_app.config["DB_PATH"]
 
@@ -121,7 +120,6 @@ def logout():
 
 
 @admin_bp.route("/products")
-@admin_required
 def products_list():
     db_path = current_app.config["DB_PATH"]
     q = (request.args.get("q") or "").strip()
@@ -160,13 +158,11 @@ def products_list():
 
 
 @admin_bp.route("/products/new")
-@admin_required
 def products_new():
     return render_template("admin/product_form.html", product=None, roast_types=ROAST_TYPES)
 
 
-@admin_bp.route("/products/new")
-@admin_required
+@admin_bp.route("/products/new", methods=["POST"])
 def products_new_post():
     db_path = current_app.config["DB_PATH"]
 
@@ -299,7 +295,6 @@ def products_new_post():
 
 
 @admin_bp.route("/products/<int:product_id>/edit", methods=["GET", "POST"])
-@admin_required
 def products_edit(product_id: int):
     db_path = current_app.config["DB_PATH"]
     product = fetch_one(db_path, "SELECT * FROM products WHERE id=?", (product_id,))
@@ -429,7 +424,6 @@ def products_edit(product_id: int):
 
 
 @admin_bp.route("/products/<int:product_id>/images/<int:image_id>/delete")
-@admin_required
 def product_image_delete(product_id: int, image_id: int):
     db_path = current_app.config["DB_PATH"]
     execute(db_path, "DELETE FROM product_images WHERE id=? AND product_id=?", (image_id, product_id))
@@ -438,7 +432,6 @@ def product_image_delete(product_id: int, image_id: int):
 
 
 @admin_bp.route("/stock-movements")
-@admin_required
 def stock_movements():
     db_path = current_app.config["DB_PATH"]
     movements = fetch_all(
@@ -463,7 +456,6 @@ def stock_movements():
 
 
 @admin_bp.route("/products/<int:product_id>/delete")
-@admin_required
 def products_delete(product_id: int):
     db_path = current_app.config["DB_PATH"]
 
@@ -478,7 +470,6 @@ def products_delete(product_id: int):
 
 
 @admin_bp.route("/products/<int:product_id>/toggle")
-@admin_required
 def products_toggle(product_id: int):
     db_path = current_app.config["DB_PATH"]
     product = fetch_one(db_path, "SELECT id, is_active FROM products WHERE id=?", (product_id,))
@@ -493,7 +484,6 @@ def products_toggle(product_id: int):
 
 
 @admin_bp.route("/orders")
-@admin_required
 def orders_list():
     db_path = current_app.config["DB_PATH"]
     status = (request.args.get("status") or "").strip()
@@ -525,7 +515,6 @@ def orders_list():
 
 
 @admin_bp.route("/orders/<int:order_id>")
-@admin_required
 def orders_detail(order_id: int):
     db_path = current_app.config["DB_PATH"]
 
@@ -566,7 +555,6 @@ def orders_detail(order_id: int):
 
 
 @admin_bp.route("/orders/<int:order_id>/print")
-@admin_required
 def orders_print(order_id: int):
     db_path = current_app.config["DB_PATH"]
 
@@ -605,7 +593,6 @@ def orders_print(order_id: int):
 
 
 @admin_bp.route("/orders/<int:order_id>/status", methods=["POST"])
-@admin_required
 def orders_update_status(order_id: int):
     db_path = current_app.config["DB_PATH"]
 
