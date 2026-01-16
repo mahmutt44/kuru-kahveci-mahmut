@@ -90,33 +90,8 @@ def dashboard():
     )
 
 
-@admin_bp.route("/login")
-def login():
-    if session.get("admin_logged_in"):
-        return redirect(url_for("admin.dashboard"))
-    return render_template("admin/login.html")
 
 
-@admin_bp.route("/login", methods=["POST"])
-def login_post():
-    username = (request.form.get("username") or "").strip()
-    password = request.form.get("password") or ""
-
-    if username != _admin_username() or not check_password_hash(_admin_password_hash(), password):
-        flash("Kullanıcı adı veya şifre hatalı.", "danger")
-        return redirect(url_for("admin.login"))
-
-    session["admin_logged_in"] = True
-    flash("Giriş başarılı.", "success")
-    return redirect(url_for("admin.dashboard"))
-
-
-@admin_bp.route("/logout", methods=["POST"])
-@admin_required
-def logout():
-    session.pop("admin_logged_in", None)
-    flash("Çıkış yapıldı.", "success")
-    return redirect(url_for("admin.login"))
 
 
 @admin_bp.route("/products")
